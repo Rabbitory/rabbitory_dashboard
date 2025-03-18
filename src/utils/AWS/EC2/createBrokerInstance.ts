@@ -10,7 +10,7 @@ import {
   _InstanceType,
 } from "@aws-sdk/client-ec2";
 
-import getAmiId from "./AMI";
+import getAmiId from "../AMI/AMI";
 
 //Replace with Laren's security group
 const ipPermissions = [
@@ -70,7 +70,7 @@ async function getDefaultVpcId(client: EC2Client): Promise<string | undefined> {
 //replace with Laren's security group
 async function createSecurityGroup(
   client: EC2Client,
-  vpcId: string | undefined
+  vpcId: string | undefined,
 ): Promise<string | undefined> {
   const command = new CreateSecurityGroupCommand({
     Description: "Security group for RabbitMQ",
@@ -88,7 +88,7 @@ async function createSecurityGroup(
 
 async function authorizeSecurityGroupIngress(
   client: EC2Client,
-  securityGroupId: string | undefined
+  securityGroupId: string | undefined,
 ) {
   if (!securityGroupId) {
     throw new Error("No security group ID found");
@@ -113,7 +113,7 @@ async function authorizeSecurityGroupIngress(
 
 async function getInstanceDetails(
   instanceId: string | undefined,
-  ec2Client: EC2Client
+  ec2Client: EC2Client,
 ) {
   const describeCommand = new DescribeInstancesCommand({
     InstanceIds: instanceId ? [instanceId] : undefined,
@@ -142,92 +142,92 @@ export default async function createInstance(
   mainQueueName: string,
   dlqName: string,
   username: string,
-  password: string
+  password: string,
 ) {
   const userDataScript = `#!/bin/bash
   # Update package lists and install RabbitMQ server and wget
   apt-get install curl gnupg apt-transport-https -y
-  
+
   ## Team RabbitMQ's main signing key
   curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
   ## Community mirror of Cloudsmith: modern Erlang repository
   curl -1sLf https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg > /dev/null
   ## Community mirror of Cloudsmith: RabbitMQ repository
   curl -1sLf https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg > /dev/null
-  
+
   ## Add apt repositories maintained by Team RabbitMQ
   tee /etc/apt/sources.list.d/rabbitmq.list <<'EOF'
   ## Provides modern Erlang/OTP releases
   ##
   deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
   deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
-  
+
   # another mirror for redundancy
   deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
   deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
-  
+
   ## Provides RabbitMQ
   ##
   deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
   deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
-  
+
   # another mirror for redundancy
   deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
   deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
   EOF
-  
+
   ## Update package indices
   apt-get update -y
-  
+
   ## Install Erlang packages
   apt-get install -y erlang-base \
                           erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
                           erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
                           erlang-runtime-tools erlang-snmp erlang-ssl \
                           erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
-  
+
   ## Install rabbitmq-server and its dependencies
   apt-get install rabbitmq-server wget -y --fix-missing
-  
+
   # Stop RabbitMQ service if running
   systemctl stop rabbitmq-server
-  
+
   # Enable plugins offline (this writes directly to the enabled_plugins file)
   rabbitmq-plugins --offline enable rabbitmq_management rabbitmq_management_agent rabbitmq_web_dispatch
-  
+
   # Start RabbitMQ service
   systemctl start rabbitmq-server
   systemctl enable rabbitmq-server
-  
+
   # Wait for the management interface to be available
   sleep 20
-  
+
   # Write the configuration file to enable the log exchange
   tee /etc/rabbitmq/rabbitmq.conf <<'EOF'
   log.exchange = true
   EOF
-  
+
   # Create admin user for the management UI
   rabbitmqctl add_user ${username} ${password}
   rabbitmqctl set_user_tags ${username} administrator
   rabbitmqctl set_permissions -p / ${username} ".*" ".*" ".*"
-  
+
   # Download rabbitmqadmin (the RabbitMQ CLI tool) from the local management interface
   wget -O /usr/local/bin/rabbitmqadmin http://localhost:15672/cli/rabbitmqadmin
   chmod +x /usr/local/bin/rabbitmqadmin
-  
+
   # Create Dead-Letter Queue
   /usr/local/bin/rabbitmqadmin declare queue name=${dlqName} durable=true
   # Build JSON arguments for the main queue using the provided dead-letter queue name
   json_args="{\\"x-dead-letter-exchange\\": \\"\\", \\"x-dead-letter-routing-key\\": \\"${dlqName}\\"}"
-  
-  
+
+
   # Create Main Queue with DLQ settings (dead-letter exchange is the default exchange "")
   /usr/local/bin/rabbitmqadmin declare queue name=${mainQueueName} durable=true arguments="$json_args"
-  
+
   # Declare a durable queue named 'logstream' with a maximum length of 1000 messages.
   rabbitmqadmin declare queue name=logstream durable=true arguments='{"x-max-length":1000}'
-  
+
   # Bind the logstream queue to the log exchange.
   rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" destination_type="queue" routing_key="#"
   `;
@@ -275,14 +275,14 @@ export default async function createInstance(
 
     await waitUntilInstanceRunning(
       { client: ec2Client, maxWaitTime: 3000 },
-      { InstanceIds: instanceId ? [instanceId] : undefined }
+      { InstanceIds: instanceId ? [instanceId] : undefined },
     );
     console.log(`Instance ${instanceId} is now running.`);
 
     // Retrieve instance details to get its public DNS or IP
     const { publicDns, publicIp } = await getInstanceDetails(
       instanceId,
-      ec2Client
+      ec2Client,
     );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
