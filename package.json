@@ -11,9 +11,11 @@
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.767.0",
     "@aws-sdk/client-ssm": "^3.759.0",
+    "axios": "^1.8.3",
     "next": "15.2.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

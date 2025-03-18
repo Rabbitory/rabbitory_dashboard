@@ -1,6 +1,6 @@
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 
-export default async function getUbuntuAmiId(region = "us-east-2") {
+export default async function getUbuntuAmiId(region = process.env.REGION) {
   const client = new SSMClient({ region });
   const parameterName =
     "/aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id";
