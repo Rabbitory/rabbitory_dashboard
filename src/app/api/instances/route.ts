@@ -1,5 +1,6 @@
 import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
+import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
 const ec2Client = new EC2Client({ region: process.env.REGION });
 
 export const GET = async () => {
@@ -33,10 +34,32 @@ export const GET = async () => {
     }
 
     return {
-      name: instance.Tags.find((tag) => tag.Key === "Name")?.Value || "No name",
+      name: instance.Tags.find((tag) => tag.Key === "Name")?.Value || "",
       id: instance.InstanceId,
     };
   });
 
   return NextResponse.json(formattedInstances);
+};
+
+export const POST = async (request: Request) => {
+  const body = await request.json();
+  if (!body) {
+    return NextResponse.json(
+      { message: "Invalid request body" },
+      { status: 400 },
+    );
+  }
+
+  const { region, instanceType, username, password } = body;
+  const instance = await createInstance(
+    region,
+    instanceType,
+    username,
+    password,
+  );
+  return NextResponse.json({
+    name: instance.Tags.find((tag) => tag.Key === "Name")?.Value || "",
+    id: instance.InstanceId,
+  });
 };

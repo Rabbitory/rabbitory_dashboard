@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.767.0",
+    "@aws-sdk/client-iam": "^3.758.0",
     "@aws-sdk/client-ssm": "^3.759.0",
     "axios": "^1.8.3",
     "next": "15.2.2",
