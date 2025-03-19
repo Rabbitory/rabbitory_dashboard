@@ -49,8 +49,8 @@ async function getInstanceDetails(
 
 export default async function createInstance(
   region = process.env.REGION,
+  instanceName: string,
   instanceType: _InstanceType = "t2.micro",
-  // instanceName: string,
   username: string,
   password: string
 ) {
@@ -165,7 +165,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
         Tags: [
           {
             Key: "Name",
-            // Value: instanceName,
+            Value: instanceName,
           },
           {
             Key: "Publisher",
@@ -199,7 +199,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
       }:5672`;
     console.log(`Main queue endpoint URL: ${endpointUrl}`);
     // removed instanceName
-    return { endpointUrl, instanceId, };
+    return { endpointUrl, instanceId, instanceName };
   } catch (err) {
     console.error("Error creating instance:", err);
     return false;

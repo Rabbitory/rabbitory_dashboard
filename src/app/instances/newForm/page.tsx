@@ -38,6 +38,7 @@ export default function NewFormPage() {
     try {
       await axios.post("/api/instances", {
         region,
+        instanceName,
         instanceType,
         username,
         password,
