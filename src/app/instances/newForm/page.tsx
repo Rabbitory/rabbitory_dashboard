@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { _InstanceType } from "@aws-sdk/client-ec2";
+import generateName from "@/utils/randomNameGenerator";
 
 export default function NewFormPage() {
   //todo query in the backend and set the regions selection
@@ -16,6 +17,7 @@ export default function NewFormPage() {
     "us-gov-east-1", // AWS GovCloud (US-East)
     "mx-central-1", // Mexico (Central)
   ]);
+  const [instanceName, setInstanceName] = useState<string>(generateName());
   const [region, setRegion] = useState<string>("us-east-1");
   const [instanceType, setInstanceType] = useState<_InstanceType>("t2.micro");
   const [username, setUsername] = useState("");
@@ -23,7 +25,7 @@ export default function NewFormPage() {
   //instance name is currently generated in the backend, can be moved to the frontend
 
   //todo: fetch regions and instance type from server side because using sdk in client side is not recommended
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +33,11 @@ export default function NewFormPage() {
     console.log({ region, instanceType, username, password });
     //todo: create instance
   };
+
+  const handleGenerate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setInstanceName(generateName());
+  }
 
   return (
     <div>
@@ -49,6 +56,19 @@ export default function NewFormPage() {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label htmlFor="instanceName">InstanceName:</label>
+          <input
+            id="instanceName"
+            name="instanceName"
+            type="text"
+            value={instanceName}
+            readOnly
+          />
+          <button type="button" onClick={handleGenerate}>
+            Generate Instance Name
+          </button>
         </div>
         <div>
           <label htmlFor="instanceType">InstanceType: </label>

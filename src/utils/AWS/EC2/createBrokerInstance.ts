@@ -7,7 +7,7 @@ import {
   _InstanceType,
 } from "@aws-sdk/client-ec2";
 import getUbuntuAmiId from "../AMI/AMI";
-import generateName from "@/utils/randomNameGenerator";
+// import generateName from "@/utils/randomNameGenerator";
 import getInstanceProfileByName from "../IAM/getprofileId";
 import {
   createSecurityGroup,
@@ -148,7 +148,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");
 
-  const instanceName = generateName();
+  // const instanceName = generateName();
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI (OS) id (Ubuntu in this example) - region specific
     InstanceType: instanceType, // Instance hardware
@@ -165,7 +165,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
         Tags: [
           {
             Key: "Name",
-            Value: instanceName,
+            // Value: instanceName,
           },
           {
             Key: "Publisher",
@@ -195,11 +195,11 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
-    const endpointUrl = `amqp://${username}:${password}@${
-      publicDns || publicIp
-    }:5672`;
+    const endpointUrl = `amqp://${username}:${password}@${publicDns || publicIp
+      }:5672`;
     console.log(`Main queue endpoint URL: ${endpointUrl}`);
-    return { endpointUrl, instanceId, instanceName };
+    // removed instanceName
+    return { endpointUrl, instanceId, };
   } catch (err) {
     console.error("Error creating instance:", err);
     return false;
