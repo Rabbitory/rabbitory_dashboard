@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { _InstanceType } from "@aws-sdk/client-ec2";
+import axios from "axios";
 
 export default function NewFormPage() {
   //todo query in the backend and set the regions selection
-  const [regions, setRegions] = useState<string[]>([
+  const [regions] = useState<string[]>([
     "us-east-1", // US East (N. Virginia)
     "us-east-2", // US East (Ohio)
     "us-west-1", // US West (N. California)
@@ -27,9 +28,7 @@ export default function NewFormPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log({ region, instanceType, username, password });
-    //todo: create instance
+    axios.post("/api/instances", { region, instanceType, username, password });
   };
 
   return (
