@@ -1,12 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { _InstanceType } from "@aws-sdk/client-ec2";
 import generateName from "@/utils/randomNameGenerator";
+import axios from "axios";
 
 export default function NewFormPage() {
-  //todo query in the backend and set the regions selection
-  const [regions, setRegions] = useState<string[]>([
+  const [instantiating, setInstantiating] = useState(false);
+  const [regions] = useState<string[]>([
     "us-east-1", // US East (N. Virginia)
     "us-east-2", // US East (Ohio)
     "us-west-1", // US West (N. California)
@@ -22,16 +24,28 @@ export default function NewFormPage() {
   const [instanceType, setInstanceType] = useState<_InstanceType>("t2.micro");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const router = useRouter();
+
   //instance name is currently generated in the backend, can be moved to the frontend
 
   //todo: fetch regions and instance type from server side because using sdk in client side is not recommended
   useEffect(() => { }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    console.log({ instanceName, region, instanceType, username, password });
-    //todo: create instance
+    setInstantiating(true);
+    try {
+      await axios.post("/api/instances", {
+        region,
+        instanceType,
+        username,
+        password,
+      });
+      router.replace("/");
+    } catch (error) {
+      console.error("Error creating instance:", error);
+    }
   };
 
   const handleGenerate = (e: React.FormEvent) => {
@@ -49,6 +63,7 @@ export default function NewFormPage() {
             id="region"
             value={region}
             onChange={(e) => setRegion(e.target.value)}
+            disabled={instantiating}
           >
             {regions.map((r) => (
               <option key={r} value={r}>
@@ -78,6 +93,7 @@ export default function NewFormPage() {
             type="text"
             value={instanceType}
             onChange={(e) => setInstanceType(e.target.value as _InstanceType)}
+            disabled={instantiating}
           />
         </div>
         <div>
@@ -88,6 +104,7 @@ export default function NewFormPage() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            disabled={instantiating}
           />
         </div>
         <div>
@@ -98,10 +115,14 @@ export default function NewFormPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={instantiating}
           />
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={instantiating}>
+          Submit
+        </button>
       </form>
+      {instantiating ? <p>Creating instance...</p> : <p></p>}
     </div>
   );
 }
