@@ -10,6 +10,10 @@ export const GET = async () => {
         Name: "tag:Publisher",
         Values: ["Rabbitory"],
       },
+      {
+        Name: "instance-state-name",
+        Values: ["pending", "running", "stopping", "stopped", "shutting-down"],
+      },
     ],
   };
 
@@ -24,7 +28,7 @@ export const GET = async () => {
   }
 
   const instances = response.Reservations.flatMap(
-    (reservation) => reservation.Instances
+    (reservation) => reservation.Instances,
   );
 
   const formattedInstances = instances.map((instance) => {
@@ -47,7 +51,7 @@ export const POST = async (request: Request) => {
   if (!body) {
     return NextResponse.json(
       { message: "Invalid request body" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -56,13 +60,13 @@ export const POST = async (request: Request) => {
     region,
     instanceType,
     username,
-    password
+    password,
   );
 
   if (!createInstanceResult) {
     return NextResponse.json(
       { message: "Error creating instance" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
