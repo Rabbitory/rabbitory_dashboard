@@ -17,7 +17,7 @@ export default function NewFormPage() {
     "us-gov-east-1", // AWS GovCloud (US-East)
     "mx-central-1", // Mexico (Central)
   ]);
-  const [instanceName, setInstanceName] = useState<string>(generateName());
+  const [instanceName, setInstanceName] = useState<string>("");
   const [region, setRegion] = useState<string>("us-east-1");
   const [instanceType, setInstanceType] = useState<_InstanceType>("t2.micro");
   const [username, setUsername] = useState("");
