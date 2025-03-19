@@ -30,7 +30,7 @@ export default function NewFormPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log({ region, instanceType, username, password });
+    console.log({ instanceName, region, instanceType, username, password });
     //todo: create instance
   };
 
@@ -64,7 +64,7 @@ export default function NewFormPage() {
             name="instanceName"
             type="text"
             value={instanceName}
-            readOnly
+            onChange={(e) => setInstanceName(e.target.value)}
           />
           <button type="button" onClick={handleGenerate}>
             Generate Instance Name
