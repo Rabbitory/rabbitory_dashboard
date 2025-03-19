@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { _InstanceType } from "@aws-sdk/client-ec2";
+import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
 export default function NewFormPage() {
@@ -18,6 +19,7 @@ export default function NewFormPage() {
     "us-gov-east-1", // AWS GovCloud (US-East)
     "mx-central-1", // Mexico (Central)
   ]);
+  const [instanceName, setInstanceName] = useState<string>("");
   const [region, setRegion] = useState<string>("us-east-1");
   const [instanceType, setInstanceType] = useState<_InstanceType>("t2.micro");
   const [username, setUsername] = useState("");
@@ -28,7 +30,7 @@ export default function NewFormPage() {
   //instance name is currently generated in the backend, can be moved to the frontend
 
   //todo: fetch regions and instance type from server side because using sdk in client side is not recommended
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +47,11 @@ export default function NewFormPage() {
       console.error("Error creating instance:", error);
     }
   };
+
+  const handleGenerate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setInstanceName(generateName());
+  }
 
   return (
     <div>
@@ -64,6 +71,19 @@ export default function NewFormPage() {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label htmlFor="instanceName">InstanceName:</label>
+          <input
+            id="instanceName"
+            name="instanceName"
+            type="text"
+            value={instanceName}
+            onChange={(e) => setInstanceName(e.target.value)}
+          />
+          <button type="button" onClick={handleGenerate}>
+            Generate Instance Name
+          </button>
         </div>
         <div>
           <label htmlFor="instanceType">InstanceType: </label>
