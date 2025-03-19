@@ -6,11 +6,9 @@ const ec2Client = new EC2Client({ region: process.env.REGION });
 // Use NextRequest type and properly handle params
 export async function GET(
   request: Request,
-  { params }: { params: { name: string } },
+  { params }: { params: Promise<{ name: string }> }
 ) {
-  // Now params.name is properly typed and available
-  await params;
-  const instanceName = params.name;
+  const { name: instanceName } = await params;
 
   const describeParams = {
     Filters: [
@@ -37,7 +35,7 @@ export async function GET(
     ) {
       return NextResponse.json(
         { message: `No instance found with name: ${instanceName}` },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -60,7 +58,7 @@ export async function GET(
     console.error("Error fetching instance details:", error);
     return NextResponse.json(
       { message: "Error fetching instance details", error: String(error) },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

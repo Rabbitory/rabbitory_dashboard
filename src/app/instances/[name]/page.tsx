@@ -1,11 +1,18 @@
 "use client";
 
-import React from "react";
+import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-export default function InstancePage({ params }: { params: { name: string } }) {
-  const { name } = params;
+interface Params {
+  name: string;
+}
+interface InstancePageProps {
+  params: Promise<Params>;
+}
+
+export default function InstancePage({ params }: InstancePageProps) {
+  const { name } = React.use(params);
   const [instance, setInstance] = useState(null);
 
   useEffect(() => {

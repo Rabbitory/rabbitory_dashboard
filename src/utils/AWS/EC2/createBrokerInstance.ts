@@ -16,7 +16,7 @@ import {
 
 async function getInstanceDetails(
   instanceId: string | undefined,
-  ec2Client: EC2Client,
+  ec2Client: EC2Client
 ) {
   const describeCommand = new DescribeInstancesCommand({
     InstanceIds: instanceId ? [instanceId] : undefined,
@@ -52,7 +52,7 @@ export default async function createInstance(
   instanceType: _InstanceType = "t2.micro",
   // instanceName: string,
   username: string,
-  password: string,
+  password: string
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -138,7 +138,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const vpcId = await getDefaultVpcId(ec2Client);
   const IPN = await getInstanceProfileByName(
     "RMQBrokerInstanceProfile",
-    region,
+    region
   );
 
   if (!IPN) return false;
@@ -148,6 +148,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");
 
+  const instanceName = generateName();
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI (OS) id (Ubuntu in this example) - region specific
     InstanceType: instanceType, // Instance hardware
@@ -164,7 +165,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
         Tags: [
           {
             Key: "Name",
-            Value: generateName(),
+            Value: instanceName,
           },
           {
             Key: "Publisher",
@@ -183,14 +184,14 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
 
     await waitUntilInstanceRunning(
       { client: ec2Client, maxWaitTime: 3000 },
-      { InstanceIds: instanceId ? [instanceId] : undefined },
+      { InstanceIds: instanceId ? [instanceId] : undefined }
     );
     console.log(`Instance ${instanceId} is now running.`);
 
     // Retrieve instance details to get its public DNS or IP
     const { publicDns, publicIp } = await getInstanceDetails(
       instanceId,
-      ec2Client,
+      ec2Client
     );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
@@ -198,7 +199,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
       publicDns || publicIp
     }:5672`;
     console.log(`Main queue endpoint URL: ${endpointUrl}`);
-    return endpointUrl;
+    return { endpointUrl, instanceId, instanceName };
   } catch (err) {
     console.error("Error creating instance:", err);
     return false;

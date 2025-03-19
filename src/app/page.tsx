@@ -33,6 +33,9 @@ export default function Home() {
           </li>
         ))}
       </ul>
+      <Link href="/instances/newForm">
+        <button>new instance</button>
+      </Link>
     </div>
   );
 }
