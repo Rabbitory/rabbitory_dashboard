@@ -26,13 +26,16 @@ export default function Home() {
       <h1>Instances</h1>
       <ul>
         {instances.map((instance) => (
-          <li key={instance.id}>
+          <li key={instance.name}>
             <Link href={`/instances/${instance.name}`}>
               {instance.name} | {instance.id}
             </Link>
           </li>
         ))}
       </ul>
+      <Link href="/instances/newForm">
+        <button>new instance</button>
+      </Link>
     </div>
   );
 }

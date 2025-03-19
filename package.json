@@ -2,6 +2,7 @@
   "name": "rabbitory_dashboard",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -10,11 +11,13 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.767.0",
+    "@aws-sdk/client-iam": "^3.758.0",
     "@aws-sdk/client-ssm": "^3.759.0",
     "axios": "^1.8.3",
     "next": "15.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "ts-node": "^10.9.2",
     "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {

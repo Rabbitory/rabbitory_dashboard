@@ -8,114 +8,15 @@ import {
 } from "@aws-sdk/client-ec2";
 import getUbuntuAmiId from "../AMI/AMI";
 import generateName from "@/utils/randomNameGenerator";
+import getInstanceProfileByName from "../IAM/getprofileId";
 import {
-  authorizeSecurityGroupIngress,
   createSecurityGroup,
   getDefaultVpcId,
 } from "../Security-Groups/createBrokerSG";
 
-// Replace with Laren's security group
-// const ipPermissions = [
-//   {
-//     IpProtocol: "tcp",
-//     FromPort: 5672,
-//     ToPort: 5672,
-//     IpRanges: [{ CidrIp: "0.0.0.0/0" }],
-//   },
-//   {
-//     IpProtocol: "tcp",
-//     FromPort: 15672,
-//     ToPort: 15672,
-//     IpRanges: [{ CidrIp: "0.0.0.0/0" }],
-//   },
-//   {
-//     IpProtocol: "tcp",
-//     FromPort: 80,
-//     ToPort: 80,
-//     IpRanges: [{ CidrIp: "0.0.0.0/0" }],
-//   },
-//   {
-//     IpProtocol: "tcp",
-//     FromPort: 443,
-//     ToPort: 443,
-//     IpRanges: [{ CidrIp: "0.0.0.0/0" }],
-//   },
-//   {
-//     IpProtocol: "tcp",
-//     FromPort: 22,
-//     ToPort: 22,
-//     IpRanges: [{ CidrIp: "0.0.0.0/0" }],
-//   },
-// ];
-
-// //when you create a security group, you need the vpc id. The default vpc id comes with your account and the region you define
-
-// //Replace with Laren's security group
-// async function getDefaultVpcId(client: EC2Client): Promise<string | undefined> {
-//   const command = new DescribeVpcsCommand({
-//     Filters: [
-//       {
-//         Name: "isDefault",
-//         Values: ["true"],
-//       },
-//     ],
-//   });
-
-//   const response = await client.send(command);
-//   if (response.Vpcs && response.Vpcs.length > 0) {
-//     return response.Vpcs[0].VpcId;
-//   } else {
-//     throw new Error("No default VPC found");
-//   }
-// }
-
-// //replace with Laren's security group
-// async function createSecurityGroup(
-//   client: EC2Client,
-//   vpcId: string | undefined,
-// ): Promise<string | undefined> {
-//   const command = new CreateSecurityGroupCommand({
-//     Description: "Security group for RabbitMQ",
-//     GroupName: "RabbitMQSecurityGroup",
-//     VpcId: vpcId,
-//   });
-//   try {
-//     const response = await client.send(command);
-//     console.log("Security group created:", response.GroupId);
-//     return response.GroupId;
-//   } catch (err) {
-//     console.error("Error creating security group:", err);
-//   }
-// }
-
-// async function authorizeSecurityGroupIngress(
-//   client: EC2Client,
-//   securityGroupId: string | undefined,
-// ) {
-//   if (!securityGroupId) {
-//     throw new Error("No security group ID found");
-//   }
-
-//   const command = new AuthorizeSecurityGroupIngressCommand({
-//     GroupId: securityGroupId,
-//     IpPermissions: ipPermissions,
-//   });
-
-//   try {
-//     const { SecurityGroupRules } = await client.send(command);
-//     console.log(JSON.stringify(SecurityGroupRules, null, 2));
-//   } catch (caught) {
-//     if (caught instanceof Error && caught.name === "InvalidGroupId.Malformed") {
-//       console.warn(`${caught.message}. Please provide a valid GroupId.`);
-//     } else {
-//       throw caught;
-//     }
-//   }
-// }
-
 async function getInstanceDetails(
   instanceId: string | undefined,
-  ec2Client: EC2Client,
+  ec2Client: EC2Client
 ) {
   const describeCommand = new DescribeInstancesCommand({
     InstanceIds: instanceId ? [instanceId] : undefined,
@@ -151,7 +52,7 @@ export default async function createInstance(
   instanceType: _InstanceType = "t2.micro",
   // instanceName: string,
   username: string,
-  password: string,
+  password: string
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -235,14 +136,19 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const amiId = await getUbuntuAmiId(region); // Changed from getAmiId to getUbuntuAmiId
 
   const vpcId = await getDefaultVpcId(ec2Client);
+  const IPN = await getInstanceProfileByName(
+    "RMQBrokerInstanceProfile",
+    region
+  );
+
+  if (!IPN) return false;
 
   const securityGroupId = await createSecurityGroup(ec2Client, vpcId);
-
-  // await authorizeSecurityGroupIngress(ec2Client, securityGroupId);
 
   // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");
 
+  const instanceName = generateName();
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI (OS) id (Ubuntu in this example) - region specific
     InstanceType: instanceType, // Instance hardware
@@ -250,13 +156,16 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     MaxCount: 1, // 1 instance made
     SecurityGroupIds: securityGroupId ? [securityGroupId] : undefined, // Security group id
     UserData: encodedUserData,
+    IamInstanceProfile: {
+      Name: IPN,
+    },
     TagSpecifications: [
       {
         ResourceType: "instance",
         Tags: [
           {
             Key: "Name",
-            Value: generateName(),
+            Value: instanceName,
           },
           {
             Key: "Publisher",
@@ -275,14 +184,14 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
 
     await waitUntilInstanceRunning(
       { client: ec2Client, maxWaitTime: 3000 },
-      { InstanceIds: instanceId ? [instanceId] : undefined },
+      { InstanceIds: instanceId ? [instanceId] : undefined }
     );
     console.log(`Instance ${instanceId} is now running.`);
 
     // Retrieve instance details to get its public DNS or IP
     const { publicDns, publicIp } = await getInstanceDetails(
       instanceId,
-      ec2Client,
+      ec2Client
     );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
@@ -290,9 +199,10 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
       publicDns || publicIp
     }:5672`;
     console.log(`Main queue endpoint URL: ${endpointUrl}`);
-    return data;
+    return { endpointUrl, instanceId, instanceName };
   } catch (err) {
     console.error("Error creating instance:", err);
+    return false;
   }
 }
 
@@ -305,4 +215,4 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
 //     "password"
 //   );
 
-createInstance(process.env.REGION, "t2.micro", "admin", "password");
+// createInstance(process.env.REGION, "t2.micro", "admin", "password");
