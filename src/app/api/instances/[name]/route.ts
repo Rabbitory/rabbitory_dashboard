@@ -41,16 +41,26 @@ export async function GET(
 
     const instance = response.Reservations[0].Instances[0];
 
+    //TODO
+    //cannot send api to get user and password from rabbitmq.
+    // will need to store them when creating a instance
+    // const endpointUrl = `amqp://${username}:${password}@${
+    //   instance.PublicDnsName || instance.PublicIpAddress
+    // }:5672`;
     // Format the instance data
     const formattedInstance = {
       id: instance.InstanceId,
       name:
         instance.Tags?.find((tag) => tag.Key === "Name")?.Value || "No name",
-      state: instance.State?.Name,
       type: instance.InstanceType,
       publicDns: instance.PublicDnsName || "N/A",
-      publicIp: instance.PublicIpAddress || "N/A",
       launchTime: instance.LaunchTime,
+      region: instance.Placement?.AvailabilityZone?.slice(0, -1),
+      //user: username,
+      //password: password,
+      // endpointUrl,
+      port: 5672,
+      state: instance.State?.Name,
     };
 
     return NextResponse.json(formattedInstance);
