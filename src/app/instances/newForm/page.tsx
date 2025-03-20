@@ -33,7 +33,14 @@ export default function NewFormPage() {
   //instance name is currently generated in the backend, can be moved to the frontend
 
   //todo: fetch regions and instance type from server side because using sdk in client side is not recommended
-  useEffect(() => { }, []);
+  useEffect(() => {
+    const fetchRegions = async () => {
+      const response = await axios.get(`/api/regions`);
+      console.log(response);
+    }
+
+    fetchRegions();
+   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
