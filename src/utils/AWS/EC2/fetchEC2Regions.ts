@@ -6,10 +6,8 @@ export const getEC2Regions = async () => {
     try {
       const command = new DescribeRegionsCommand({});
       const response = await client.send(command);
-
-      response.Regions?.forEach(region => {
-          console.log(`- ${region.RegionName}`);
-      });
+      const regions = response.Regions?.map(region => region.RegionName);
+      return regions;
     } catch (error) {
         console.error("Error fetching regions:", error);
     }
