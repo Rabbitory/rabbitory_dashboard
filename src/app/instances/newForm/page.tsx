@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { _InstanceType } from "@aws-sdk/client-ec2";
+// import { _InstanceType } from "@aws-sdk/client-ec2";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
