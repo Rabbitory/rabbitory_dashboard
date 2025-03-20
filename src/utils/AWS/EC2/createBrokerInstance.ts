@@ -195,8 +195,9 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
-    const endpointUrl = `amqp://${username}:${password}@${publicDns || publicIp
-      }:5672`;
+    const endpointUrl = `amqp://${username}:${password}@${
+      publicDns || publicIp
+    }:5672`;
     console.log(`Main queue endpoint URL: ${endpointUrl}`);
     // removed instanceName
     return { endpointUrl, instanceId, instanceName };
@@ -205,14 +206,3 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     return false;
   }
 }
-
-//   createInstance(
-//     process.env.REGION,
-//     "t2.micro",
-//     "MainQueue",
-//     "DeadLetterQueue",
-//     "admin",
-//     "password"
-//   );
-
-// createInstance(process.env.REGION, "t2.micro", "admin", "password");
