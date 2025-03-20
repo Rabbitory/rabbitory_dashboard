@@ -2,33 +2,38 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { _InstanceType } from "@aws-sdk/client-ec2";
+// import { _InstanceType } from "@aws-sdk/client-ec2";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
+const instanceTypes = ['t2.micro', 't2.small', 't2.medium'];
+
 export default function NewFormPage() {
   const [instantiating, setInstantiating] = useState(false);
-  const [regions] = useState<string[]>([
-    "us-east-1", // US East (N. Virginia)
-    "us-east-2", // US East (Ohio)
-    "us-west-1", // US West (N. California)
-    "us-west-2", // US West (Oregon)
-    "ca-central-1", // Canada (Central)
-    "ca-west-1", // Canada West (Calgary)
-    "us-gov-west-1", // AWS GovCloud (US-West)
-    "us-gov-east-1", // AWS GovCloud (US-East)
-    "mx-central-1", // Mexico (Central)
-  ]);
   const [instanceName, setInstanceName] = useState<string>("");
   const [region, setRegion] = useState<string>("us-east-1");
-  const [instanceType, setInstanceType] = useState<_InstanceType>("t2.micro");
+  const [availableRegions, setAvailableRegions] = useState([]);
+  const [instanceType, setInstanceType] = useState<string>("t2.micro");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const router = useRouter();
 
-  //todo: fetch regions and instance type from server side because using sdk in client side is not recommended
-  useEffect(() => { }, []);
+  //instance name is currently generated in the backend, can be moved to the frontend
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const { data } = await axios.get('/api/regions');
+        setAvailableRegions(data.regions);
+      } catch (error) {
+          console.error("Error fetching regions:", error);
+      }
+    };
+
+    fetchRegions();
+   }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,9 +82,9 @@ export default function NewFormPage() {
             onChange={(e) => setRegion(e.target.value)}
             disabled={instantiating}
           >
-            {regions.map((r) => (
-              <option key={r} value={r}>
-                {r}
+            {availableRegions.map((region) => (
+              <option key={region} value={region}>
+                {region}
               </option>
             ))}
           </select>
@@ -101,14 +106,15 @@ export default function NewFormPage() {
         </div>
         <div>
           <label htmlFor="instanceType">InstanceType: </label>
-          <input
-            id="instanceType"
-            name="instanceType"
-            type="text"
-            value={instanceType}
-            onChange={(e) => setInstanceType(e.target.value as _InstanceType)}
-            disabled={instantiating}
-          />
+          <select
+              id="instanceType"
+              name="instanceType"
+              onChange={(e) => setInstanceType(e.target.value)}
+          >
+            {instanceTypes.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="username">Username: </label>
