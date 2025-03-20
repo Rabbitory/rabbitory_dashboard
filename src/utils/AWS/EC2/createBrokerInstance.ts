@@ -16,7 +16,7 @@ import {
 
 // async function getInstanceDetails(
 //   instanceId: string | undefined,
-//   ec2Client: EC2Client
+//   ec2Client: EC2Client,
 // ) {
 //   const describeCommand = new DescribeInstancesCommand({
 //     InstanceIds: instanceId ? [instanceId] : undefined,
@@ -51,8 +51,8 @@ export default async function createInstance(
   region = process.env.REGION,
   instanceName: string,
   instanceType: _InstanceType = "t2.micro",
-  username: string,
-  password: string,
+  username: string = "admin",
+  password: string = "password",
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -188,16 +188,19 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     // );
     // console.log(`Instance ${instanceId} is now running.`);
 
-    // // Retrieve instance details to get its public DNS or IP
+    // Retrieve instance details to get its public DNS or IP
     // const { publicDns, publicIp } = await getInstanceDetails(
     //   instanceId,
     //   ec2Client
     // );
 
+    // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
+
     // const endpointUrl = `amqp://${username}:${password}@${
     //   publicDns || publicIp
     // }:5672`;
     // console.log(`Main queue endpoint URL: ${endpointUrl}`);
+
     return { instanceId, instanceName };
   } catch (err) {
     console.error("Error creating instance:", err);
