@@ -27,13 +27,17 @@ export default function NewFormPage() {
 
   const router = useRouter();
 
-  //instance name is currently generated in the backend, can be moved to the frontend
-
   //todo: fetch regions and instance type from server side because using sdk in client side is not recommended
   useEffect(() => { }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isValidName(instanceName)) {
+      alert('Invalid Instance Name')
+      return;
+    }
+
     setInstantiating(true);
     try {
       await axios.post("/api/instances", {
@@ -52,6 +56,12 @@ export default function NewFormPage() {
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
     setInstanceName(generateName());
+  }
+
+  const isValidName = (name: string) => {
+    return name.match(/^[a-z0-9-_]+$/ig) &&
+      name.length <= 64 &&
+      name.length >= 3;
   }
 
   return (
@@ -81,6 +91,8 @@ export default function NewFormPage() {
             type="text"
             value={instanceName}
             onChange={(e) => setInstanceName(e.target.value)}
+            style={isValidName(instanceName) ? {} : { border: 'solid red 1px', color: 'red' }}
+            required
           />
           <button type="button" onClick={handleGenerate}>
             Generate Instance Name
@@ -106,6 +118,7 @@ export default function NewFormPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             disabled={instantiating}
+            required
           />
         </div>
         <div>
@@ -117,6 +130,7 @@ export default function NewFormPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={instantiating}
+            required
           />
         </div>
         <button type="submit" disabled={instantiating}>
