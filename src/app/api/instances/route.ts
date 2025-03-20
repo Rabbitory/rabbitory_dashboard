@@ -71,10 +71,9 @@ export const POST = async (request: Request) => {
     );
   }
 
-  const { endpointUrl, instanceId, } = createInstanceResult;
+  const { instanceId } = createInstanceResult;
   return NextResponse.json({
     name: instanceName,
     id: instanceId,
-    endpointUrl,
   });
 };

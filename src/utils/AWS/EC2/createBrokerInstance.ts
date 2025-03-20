@@ -1,9 +1,9 @@
 import {
   EC2Client,
   RunInstancesCommand,
-  DescribeInstancesCommand,
+  // DescribeInstancesCommand,
   RunInstancesCommandInput,
-  waitUntilInstanceRunning,
+  // waitUntilInstanceRunning,
   _InstanceType,
 } from "@aws-sdk/client-ec2";
 import getUbuntuAmiId from "../AMI/AMI";
@@ -14,30 +14,30 @@ import {
   getDefaultVpcId,
 } from "../Security-Groups/createBrokerSG";
 
-async function getInstanceDetails(
-  instanceId: string | undefined,
-  ec2Client: EC2Client
-) {
-  const describeCommand = new DescribeInstancesCommand({
-    InstanceIds: instanceId ? [instanceId] : undefined,
-  });
-  const describeResponse = await ec2Client.send(describeCommand);
+// async function getInstanceDetails(
+//   instanceId: string | undefined,
+//   ec2Client: EC2Client,
+// ) {
+//   const describeCommand = new DescribeInstancesCommand({
+//     InstanceIds: instanceId ? [instanceId] : undefined,
+//   });
+//   const describeResponse = await ec2Client.send(describeCommand);
 
-  if (
-    !describeResponse.Reservations ||
-    describeResponse.Reservations.length === 0 ||
-    !describeResponse.Reservations[0].Instances ||
-    describeResponse.Reservations[0].Instances.length === 0
-  ) {
-    throw new Error("No instance information found.");
-  }
+//   if (
+//     !describeResponse.Reservations ||
+//     describeResponse.Reservations.length === 0 ||
+//     !describeResponse.Reservations[0].Instances ||
+//     describeResponse.Reservations[0].Instances.length === 0
+//   ) {
+//     throw new Error("No instance information found.");
+//   }
 
-  const instance = describeResponse.Reservations[0].Instances[0];
-  const publicDns = instance.PublicDnsName || "N/A";
-  const publicIp = instance.PublicIpAddress || "N/A";
+//   const instance = describeResponse.Reservations[0].Instances[0];
+//   const publicDns = instance.PublicDnsName || "N/A";
+//   const publicIp = instance.PublicIpAddress || "N/A";
 
-  return { publicDns, publicIp };
-}
+//   return { publicDns, publicIp };
+// }
 
 // # Create Dead-Letter Queue
 // /usr/local/bin/rabbitmqadmin declare queue name=${dlqName} durable=true
@@ -51,8 +51,8 @@ export default async function createInstance(
   region = process.env.REGION,
   instanceName: string,
   instanceType: _InstanceType = "t2.micro",
-  username: string,
-  password: string
+  username: string = "admin",
+  password: string = "password",
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -138,7 +138,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const vpcId = await getDefaultVpcId(ec2Client);
   const IPN = await getInstanceProfileByName(
     "RMQBrokerInstanceProfile",
-    region
+    region,
   );
 
   if (!IPN) return false;
@@ -182,25 +182,25 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     const instanceId = data.Instances[0].InstanceId;
     console.log("Instance created:", instanceId);
 
-    await waitUntilInstanceRunning(
-      { client: ec2Client, maxWaitTime: 3000 },
-      { InstanceIds: instanceId ? [instanceId] : undefined }
-    );
-    console.log(`Instance ${instanceId} is now running.`);
+    // await waitUntilInstanceRunning(
+    //   { client: ec2Client, maxWaitTime: 3000 },
+    //   { InstanceIds: instanceId ? [instanceId] : undefined }
+    // );
+    // console.log(`Instance ${instanceId} is now running.`);
 
     // Retrieve instance details to get its public DNS or IP
-    const { publicDns, publicIp } = await getInstanceDetails(
-      instanceId,
-      ec2Client
-    );
+    // const { publicDns, publicIp } = await getInstanceDetails(
+    //   instanceId,
+    //   ec2Client
+    // );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
-    const endpointUrl = `amqp://${username}:${password}@${
-      publicDns || publicIp
-    }:5672`;
-    console.log(`Main queue endpoint URL: ${endpointUrl}`);
+    // const endpointUrl = `amqp://${username}:${password}@${
+    //   publicDns || publicIp
+    // }:5672`;
+    // console.log(`Main queue endpoint URL: ${endpointUrl}`);
     // removed instanceName
-    return { endpointUrl, instanceId, instanceName };
+    return { instanceId, instanceName };
   } catch (err) {
     console.error("Error creating instance:", err);
     return false;
