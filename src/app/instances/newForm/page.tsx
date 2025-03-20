@@ -34,7 +34,7 @@ export default function NewFormPage() {
     e.preventDefault();
 
     if (!isValidName(instanceName)) {
-      alert('Invalid Instance Name')
+      alert('Instance name must be 3-64 characters long.\nSupports alphanumeric characters, - and _');
       return;
     }
 
@@ -59,7 +59,8 @@ export default function NewFormPage() {
   }
 
   const isValidName = (name: string) => {
-    return name.match(/^[a-z0-9-_]+$/ig) &&
+    const regex = /^[a-z0-9-_]+$/ig
+    return regex.test(name) &&
       name.length <= 64 &&
       name.length >= 3;
   }
