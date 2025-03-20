@@ -7,7 +7,7 @@ import {
   _InstanceType,
 } from "@aws-sdk/client-ec2";
 import getUbuntuAmiId from "../AMI/AMI";
-import generateName from "@/utils/randomNameGenerator";
+// import generateName from "@/utils/randomNameGenerator";
 import getInstanceProfileByName from "../IAM/getprofileId";
 import {
   createSecurityGroup,
@@ -49,8 +49,8 @@ import {
 
 export default async function createInstance(
   region = process.env.REGION,
+  instanceName: string,
   instanceType: _InstanceType = "t2.micro",
-  // instanceName: string,
   username: string,
   password: string,
 ) {
@@ -148,7 +148,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   // Data must be base64 encoded
   const encodedUserData = Buffer.from(userDataScript).toString("base64");
 
-  const instanceName = generateName();
+  // const instanceName = generateName();
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI (OS) id (Ubuntu in this example) - region specific
     InstanceType: instanceType, // Instance hardware
@@ -204,14 +204,3 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     return false;
   }
 }
-
-//   createInstance(
-//     process.env.REGION,
-//     "t2.micro",
-//     "MainQueue",
-//     "DeadLetterQueue",
-//     "admin",
-//     "password"
-//   );
-
-// createInstance(process.env.REGION, "t2.micro", "admin", "password");

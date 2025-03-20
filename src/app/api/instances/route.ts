@@ -55,9 +55,10 @@ export const POST = async (request: Request) => {
     );
   }
 
-  const { region, instanceType, username, password } = body;
+  const { region, instanceName, instanceType, username, password } = body;
   const createInstanceResult = await createInstance(
     region,
+    instanceName,
     instanceType,
     username,
     password,
@@ -70,7 +71,8 @@ export const POST = async (request: Request) => {
     );
   }
 
-  const { instanceId, instanceName } = createInstanceResult;
+  const { instanceId } = createInstanceResult;
+
   return NextResponse.json({
     name: instanceName,
     id: instanceId,

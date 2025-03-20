@@ -1,30 +1,37 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Form from "next/form";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+// import { _InstanceType } from "@aws-sdk/client-ec2";
+import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
+
+const instanceTypes = ["t2.micro", "t2.small", "t2.medium"];
 
 export default function NewFormPage() {
   const router = useRouter();
+  const [instanceName, setInstanceName] = useState("");
+  const [availableRegions, setAvailableRegions] = useState([]);
   const [instantiating, setInstantiating] = useState(false);
-  const [regions] = useState<string[]>([
-    "us-east-1", // US East (N. Virginia)
-    "us-east-2", // US East (Ohio)
-    "us-west-1", // US West (N. California)
-    "us-west-2", // US West (Oregon)
-    "ca-central-1", // Canada (Central)
-    "ca-west-1", // Canada West (Calgary)
-    "us-gov-west-1", // AWS GovCloud (US-West)
-    "us-gov-east-1", // AWS GovCloud (US-East)
-    "mx-central-1", // Mexico (Central)
-  ]);
-  // Todo: fetch regions and instance type from server side because using sdk in client side is not recommended
-  // useEffect(() => {}, []);
+
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const { data } = await axios.get("/api/regions");
+        setAvailableRegions(data.regions);
+      } catch (error) {
+        console.error("Error fetching regions:", error);
+      }
+    };
+
+    fetchRegions();
+  }, []);
 
   const handleSubmit = async (formData: FormData) => {
     try {
       await axios.post("/api/instances", {
+        instanceName: formData.get("instanceName"),
         region: formData.get("region"),
         instanceType: formData.get("instanceType"),
         username: formData.get("username"),
@@ -37,6 +44,10 @@ export default function NewFormPage() {
     }
   };
 
+  const handleGenerate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setInstanceName(generateName());
+  };
   return (
     <>
       <Form
@@ -46,21 +57,33 @@ export default function NewFormPage() {
         }}
       >
         <fieldset disabled={instantiating}>
+          <label htmlFor="instanceName">Instance Name:</label>
+          <input
+            id="instanceName"
+            name="instanceName"
+            type="text"
+            value={instanceName}
+            onChange={(e) => setInstanceName(e.target.value)}
+          />
+          <button type="button" onClick={handleGenerate}>
+            Generate Instance Name
+          </button>
           <label htmlFor="region">Region: </label>
           <select id="region" name="region" disabled={instantiating}>
-            {regions.map((r) => (
-              <option key={r} value={r}>
-                {r}
+            {availableRegions.map((region) => (
+              <option key={region} value={region}>
+                {region}
               </option>
             ))}
           </select>
-          <label htmlFor="instanceType">InstanceType: </label>
-          <input
-            id="instanceType"
-            name="instanceType"
-            defaultValue={"t2.micro"}
-            type="text"
-          />
+          <label htmlFor="instanceType">Instance Hardware: </label>
+          <select id="instanceType" name="instanceType">
+            {instanceTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
           <label htmlFor="username">Username: </label>
           <input id="username" name="username" type="text" />
           <label htmlFor="password">Password: </label>
