@@ -72,6 +72,7 @@ export const POST = async (request: Request) => {
   }
 
   const { instanceId } = createInstanceResult;
+
   return NextResponse.json({
     name: instanceName,
     id: instanceId,

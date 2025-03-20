@@ -180,7 +180,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     const data = await ec2Client.send(new RunInstancesCommand(params));
     if (!data.Instances) throw new Error("No instances found");
     const instanceId = data.Instances[0].InstanceId;
-    console.log("Instance created:", instanceId);
+    // console.log("Instance created:", instanceId);
 
     // await waitUntilInstanceRunning(
     //   { client: ec2Client, maxWaitTime: 3000 },
@@ -195,11 +195,12 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     // );
 
     // Construct an AMQP endpoint URL for the main queue (RabbitMQ listens on port 5672)
+
     // const endpointUrl = `amqp://${username}:${password}@${
     //   publicDns || publicIp
     // }:5672`;
     // console.log(`Main queue endpoint URL: ${endpointUrl}`);
-    // removed instanceName
+
     return { instanceId, instanceName };
   } catch (err) {
     console.error("Error creating instance:", err);
