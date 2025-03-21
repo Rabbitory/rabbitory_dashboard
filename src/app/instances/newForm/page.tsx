@@ -7,7 +7,11 @@ import { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
-const instanceTypes = ["t2.micro", "t2.small", "t2.medium"];
+const instanceOptions: Record<string, string[]> = {
+  m8g: ["m8g.medium", "m8g.large", "m8g.xlarge"],
+  c7gn: ["c7gn.medium", "c7gn.large", "c7gn.xlarge"],
+  t2: ["t2.micro", "t2.small", "t2.medium"], // Keep your default ones
+};
 
 export default function NewFormPage() {
   const router = useRouter();
@@ -15,6 +19,8 @@ export default function NewFormPage() {
   const [instanceName, setInstanceName] = useState("");
   const [availableRegions, setAvailableRegions] = useState([]);
   const [instantiating, setInstantiating] = useState(false);
+  const [selectedMajorType, setSelectedMajorType] = useState("");
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -30,6 +36,11 @@ export default function NewFormPage() {
 
     fetchRegions();
   }, []);
+
+  useEffect(() => {
+    setFilteredInstanceTypes(instanceOptions[selectedMajorType] ?? []);
+  }, [selectedMajorType]);
+  
 
   const handleSubmit = async (formData: FormData) => {
     try {
@@ -51,6 +62,7 @@ export default function NewFormPage() {
     e.preventDefault();
     setInstanceName(generateName());
   };
+
   return (
     <>
       {loading ? (
@@ -73,7 +85,7 @@ export default function NewFormPage() {
             />
             <button type="button" onClick={handleGenerate}>
               Generate Instance Name
-            </button>
+            </button><br></br>
             <label htmlFor="region">Region: </label>
             <select id="region" name="region" disabled={instantiating}>
               {availableRegions.map((region) => (
@@ -81,17 +93,39 @@ export default function NewFormPage() {
                   {region}
                 </option>
               ))}
+            </select><br></br>
+
+            {/* Major Type Selection */}
+            <label htmlFor="majorType">Instance Major Type: </label>
+            <select
+              id="majorType"
+              name="majorType"
+              value={selectedMajorType}
+              onChange={(e) => setSelectedMajorType(e.target.value)}
+            >
+              <option value="">Select a major type</option>
+              {Object.keys(instanceOptions).map((majorType) => (
+                <option key={majorType} value={majorType}>
+                  {majorType}
+                </option>
+              ))}
             </select>
-            <label htmlFor="instanceType">Instance Hardware: </label>
-            <select id="instanceType" name="instanceType">
-              {instanceTypes.map((type) => (
+            <br />
+
+            {/* Subtype Selection */}
+            <label htmlFor="instanceType">Instance Type: </label>
+            <select id="instanceType" name="instanceType" disabled={!selectedMajorType}>
+              <option value="">Select a subtype</option>
+              {filteredInstanceTypes.map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
               ))}
             </select>
+            <br />
+
             <label htmlFor="username">Username: </label>
-            <input id="username" name="username" type="text" />
+            <input id="username" name="username" type="text" /><br></br>
             <label htmlFor="password">Password: </label>
             <input id="password" name="password" type="password" />
             <button type="submit">Submit</button>
