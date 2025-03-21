@@ -3,18 +3,22 @@
 import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-// import { _InstanceType } from "@aws-sdk/client-ec2";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
-const instanceTypes = ["t2.micro", "t2.small", "t2.medium"];
-
 export default function NewFormPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [instanceName, setInstanceName] = useState("");
-  const [availableRegions, setAvailableRegions] = useState([]);
-  const [instantiating, setInstantiating] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [instanceName, setInstanceName] = useState<string>("");
+  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
+  const [instanceTypes, setInstanceTypes] = useState<Record<string, string[]>>(
+    {},
+  );
+  const [instantiating, setInstantiating] = useState<boolean>(false);
+  const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
+    [],
+  );
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -22,21 +26,39 @@ export default function NewFormPage() {
         setLoading(true);
         const { data } = await axios.get("/api/regions");
         setAvailableRegions(data.regions);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching regions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchInstanceTypes = async () => {
+      try {
+        const { data } = await axios.get("/api/instanceTypes");
+        setInstanceTypes(data.instanceTypes);
+      } catch (error) {
+        console.log("Error fetching instance types:", error);
       }
     };
 
     fetchRegions();
+    fetchInstanceTypes();
   }, []);
+
+  useEffect(() => {
+    setFilteredInstanceTypes((prev) => {
+      const newFilteredTypes = instanceTypes[selectedInstanceType] ?? [];
+      return prev !== newFilteredTypes ? newFilteredTypes : prev; // Prevent unnecessary updates
+    });
+  }, [selectedInstanceType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
 
   const handleSubmit = async (formData: FormData) => {
     try {
       await axios.post("/api/instances", {
         instanceName: formData.get("instanceName"),
         region: formData.get("region"),
-        instanceType: formData.get("instanceType"),
+        instanceType: formData.get("instanceSize"),
         username: formData.get("username"),
         password: formData.get("password"),
       });
@@ -51,6 +73,7 @@ export default function NewFormPage() {
     e.preventDefault();
     setInstanceName(generateName());
   };
+
   return (
     <>
       {loading ? (
@@ -74,6 +97,7 @@ export default function NewFormPage() {
             <button type="button" onClick={handleGenerate}>
               Generate Instance Name
             </button>
+            <br />
             <label htmlFor="region">Region: </label>
             <select id="region" name="region" disabled={instantiating}>
               {availableRegions.map((region) => (
@@ -82,18 +106,47 @@ export default function NewFormPage() {
                 </option>
               ))}
             </select>
-            <label htmlFor="instanceType">Instance Hardware: </label>
-            <select id="instanceType" name="instanceType">
-              {instanceTypes.map((type) => (
+            <br />
+
+            {/* Instance Type Selection */}
+            <label htmlFor="instanceType">Instance Type: </label>
+            <select
+              id="instanceType"
+              name="instanceType"
+              value={selectedInstanceType}
+              onChange={(e) => setSelectedInstanceType(e.target.value)}
+            >
+              <option value="">Select an instance type</option>
+              {Object.keys(instanceTypes).map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
               ))}
             </select>
+            <br />
+
+            {/* Instance Size Selection */}
+            <label htmlFor="instanceSize">Instance Size: </label>
+            <select
+              id="instanceSize"
+              name="instanceSize"
+              disabled={!selectedInstanceType}
+            >
+              <option value="">Select an instance size</option>
+              {filteredInstanceTypes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+            <br />
+
             <label htmlFor="username">Username: </label>
             <input id="username" name="username" type="text" />
+            <br />
             <label htmlFor="password">Password: </label>
             <input id="password" name="password" type="password" />
+            <br />
             <button type="submit">Submit</button>
           </fieldset>
         </Form>
