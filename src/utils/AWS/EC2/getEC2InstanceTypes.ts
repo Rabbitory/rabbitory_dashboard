@@ -5,7 +5,9 @@ const ec2Client = new EC2Client({});
 export async function getEC2InstanceTypes() {
   try {
     const command = new DescribeInstanceTypesCommand({
-      Filters: [{ Name: "instance-type", Values: ["m8g.*", "c7gn.*"] }],
+      Filters: [
+        { Name: "instance-type", 
+          Values: ["m8g.*", "m7g.*","c8g.*"] }],
     });
     const response = await ec2Client.send(command);
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getEC2Regions } from "../../../utils/AWS/EC2/getEC2Regions";
+import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
 
 export async function GET() {
   try {

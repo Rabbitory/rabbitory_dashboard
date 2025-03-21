@@ -18,6 +18,7 @@ export default function NewFormPage() {
   const [loading, setLoading] = useState(false);
   const [instanceName, setInstanceName] = useState("");
   const [availableRegions, setAvailableRegions] = useState([]);
+  const [instanceTypes, setInstanceTypes] = useState({});
   const [instantiating, setInstantiating] = useState(false);
   const [selectedMajorType, setSelectedMajorType] = useState("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
@@ -34,7 +35,17 @@ export default function NewFormPage() {
       }
     };
 
+    const fetchInstanceTypes = async () => {
+      try {
+        const { data } = await axios.get("/api/intanceTypes");
+        setInstanceTypes(data.instanceTypes);
+      } catch (error) {
+        console.log("Error fetching instance types:", error);
+      }
+    }
+
     fetchRegions();
+    fetchInstanceTypes();
   }, []);
 
   useEffect(() => {
@@ -104,7 +115,7 @@ export default function NewFormPage() {
               onChange={(e) => setSelectedMajorType(e.target.value)}
             >
               <option value="">Select a major type</option>
-              {Object.keys(instanceOptions).map((majorType) => (
+              {Object.keys(instanceTypes).map((majorType) => (
                 <option key={majorType} value={majorType}>
                   {majorType}
                 </option>
