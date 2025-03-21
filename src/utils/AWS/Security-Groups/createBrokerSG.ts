@@ -41,9 +41,8 @@ const ipPermissions = [
 
 async function getSecurityGroupId(
   groupName: string,
-  description: string,
   vpcId: string | undefined,
-  client: EC2Client,
+  client: EC2Client
 ) {
   // First, check if the security group exists in the specified VPC.
   const describeParams = {
@@ -71,7 +70,7 @@ async function getSecurityGroupId(
 
 async function authorizeSecurityGroupIngress(
   client: EC2Client,
-  securityGroupId: string | undefined,
+  securityGroupId: string | undefined
 ) {
   if (!securityGroupId) {
     throw new Error("No security group ID found");
@@ -95,7 +94,7 @@ async function authorizeSecurityGroupIngress(
 }
 
 export async function getDefaultVpcId(
-  client: EC2Client,
+  client: EC2Client
 ): Promise<string | undefined> {
   const command = new DescribeVpcsCommand({
     Filters: [
@@ -116,16 +115,15 @@ export async function getDefaultVpcId(
 
 export async function createSecurityGroup(
   client: EC2Client,
-  vpcId: string | undefined,
+  vpcId: string | undefined
 ): Promise<string | undefined> {
   const securityGroupName = "BrokerSecurityGroup";
   const description = "Security group for RabbitMQ EC2 instance";
 
   const securityGroupId = await getSecurityGroupId(
     securityGroupName,
-    description,
     vpcId,
-    client,
+    client
   );
 
   if (securityGroupId) {

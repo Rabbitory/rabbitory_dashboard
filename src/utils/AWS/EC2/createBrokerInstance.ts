@@ -52,7 +52,7 @@ export default async function createInstance(
   instanceName: string,
   instanceType: _InstanceType = "t2.micro",
   username: string = "admin",
-  password: string = "password",
+  password: string = "password"
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -105,22 +105,48 @@ systemctl stop rabbitmq-server
 # Enable plugins offline (this writes directly to the enabled_plugins file)
 rabbitmq-plugins --offline enable rabbitmq_management rabbitmq_management_agent rabbitmq_web_dispatch
 
-# Start RabbitMQ service
-systemctl start rabbitmq-server
-systemctl enable rabbitmq-server
-
-# Wait for the management interface to be available
-sleep 20
-
 # Write the configuration file to enable the log exchange
 tee /etc/rabbitmq/rabbitmq.conf <<'EOF'
 log.exchange = true
 EOF
 
+# Start RabbitMQ service
+systemctl start rabbitmq-server
+systemctl enable rabbitmq-server
+
 # Create admin user for the management UI
 rabbitmqctl add_user ${username} ${password}
 rabbitmqctl set_user_tags ${username} administrator
 rabbitmqctl set_permissions -p / ${username} ".*" ".*" ".*"
+
+# Wait for the management interface to be available
+# Poll the RabbitMQ management endpoint until it's available.
+# Set maximum wait time (in seconds) and polling interval.
+max_wait=120
+interval=5
+elapsed=0
+
+echo "Waiting for RabbitMQ management interface to become available..."
+while true; do
+  # Send a GET request to the health check endpoint using curl.
+  response=$(curl -s -u "${username}:${password}" http://localhost:15672/api/health/checks/port-listener/15672)
+  
+  # Check if the response contains "status":"ok"
+  if echo "$response" | grep -q '"status":"ok"'; then
+    echo "RabbitMQ management interface is up."
+    break
+  fi
+  
+  # Wait for the specified interval before checking again.
+  sleep \$interval
+  elapsed=\$((elapsed + interval))
+  
+  # If the maximum wait time is exceeded, exit with an error.
+  if [ \$elapsed -ge \$max_wait ]; then
+    echo "Timeout waiting for RabbitMQ management interface."
+    exit 1
+  fi
+done
 
 # Download rabbitmqadmin (the RabbitMQ CLI tool) from the local management interface
 wget -O /usr/local/bin/rabbitmqadmin http://localhost:15672/cli/rabbitmqadmin
@@ -138,7 +164,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const vpcId = await getDefaultVpcId(ec2Client);
   const IPN = await getInstanceProfileByName(
     "RMQBrokerInstanceProfile",
-    region,
+    region
   );
 
   if (!IPN) return false;
@@ -180,6 +206,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
     const data = await ec2Client.send(new RunInstancesCommand(params));
     if (!data.Instances) throw new Error("No instances found");
     const instanceId = data.Instances[0].InstanceId;
+
     // console.log("Instance created:", instanceId);
 
     // await waitUntilInstanceRunning(

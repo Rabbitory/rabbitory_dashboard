@@ -1,5 +1,6 @@
 import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
+import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
 const ec2Client = new EC2Client({ region: process.env.REGION });
 
@@ -28,7 +29,7 @@ export const GET = async () => {
   }
 
   const instances = response.Reservations.flatMap(
-    (reservation) => reservation.Instances,
+    (reservation) => reservation.Instances
   );
 
   const formattedInstances = instances.map((instance) => {
@@ -51,7 +52,7 @@ export const POST = async (request: Request) => {
   if (!body) {
     return NextResponse.json(
       { message: "Invalid request body" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 
@@ -61,18 +62,19 @@ export const POST = async (request: Request) => {
     instanceName,
     instanceType,
     username,
-    password,
+    password
   );
 
   if (!createInstanceResult) {
     return NextResponse.json(
       { message: "Error creating instance" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 
   const { instanceId } = createInstanceResult;
 
+  pollRabbitMQServerStatus(instanceId, username, password);
   return NextResponse.json({
     name: instanceName,
     id: instanceId,
