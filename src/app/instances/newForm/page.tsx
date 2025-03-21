@@ -7,20 +7,20 @@ import { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
-const instanceOptions: Record<string, string[]> = {
-  m8g: ["m8g.medium", "m8g.large", "m8g.xlarge"],
-  c7gn: ["c7gn.medium", "c7gn.large", "c7gn.xlarge"],
-  t2: ["t2.micro", "t2.small", "t2.medium"], // Keep your default ones
-};
+// const instanceOptions: Record<string, string[]> = {
+//   m8g: ["m8g.medium", "m8g.large", "m8g.xlarge"],
+//   c7gn: ["c7gn.medium", "c7gn.large", "c7gn.xlarge"],
+//   t2: ["t2.micro", "t2.small", "t2.medium"], // Keep your default ones
+// };
 
 export default function NewFormPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [instanceName, setInstanceName] = useState("");
-  const [availableRegions, setAvailableRegions] = useState([]);
-  const [instanceTypes, setInstanceTypes] = useState({});
-  const [instantiating, setInstantiating] = useState(false);
-  const [selectedMajorType, setSelectedMajorType] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [instanceName, setInstanceName] = useState<string>("");
+  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
+  const [instanceTypes, setInstanceTypes] = useState<Record<string, string[]>>({});
+  const [instantiating, setInstantiating] = useState<boolean>(false);
+  const [selectedMajorType, setSelectedMajorType] = useState<string>("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
 
   useEffect(() => {
@@ -29,15 +29,17 @@ export default function NewFormPage() {
         setLoading(true);
         const { data } = await axios.get("/api/regions");
         setAvailableRegions(data.regions);
-        setLoading(false);
       } catch (error) {
         console.error("Error fetching regions:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     const fetchInstanceTypes = async () => {
       try {
-        const { data } = await axios.get("/api/intanceTypes");
+        console.log("Fetching instance types");
+        const { data } = await axios.get("/api/instanceTypes");
         setInstanceTypes(data.instanceTypes);
       } catch (error) {
         console.log("Error fetching instance types:", error);
@@ -49,8 +51,12 @@ export default function NewFormPage() {
   }, []);
 
   useEffect(() => {
-    setFilteredInstanceTypes(instanceOptions[selectedMajorType] ?? []);
-  }, [selectedMajorType]);
+    setFilteredInstanceTypes((prev) => {
+      const newFilteredTypes = instanceTypes[selectedMajorType] ?? [];
+      return prev !== newFilteredTypes ? newFilteredTypes : prev; // Prevent unnecessary updates
+    });
+  }, [selectedMajorType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
+  
   
 
   const handleSubmit = async (formData: FormData) => {
