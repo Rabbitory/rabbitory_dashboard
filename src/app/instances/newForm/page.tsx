@@ -54,6 +54,11 @@ export default function NewFormPage() {
   }, [selectedInstanceType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
 
   const handleSubmit = async (formData: FormData) => {
+    if (!isValidName(instanceName)) {
+      alert('Instance name must be 3-64 characters long.\nSupports alphanumeric characters, - and _');
+      return;
+    }
+    
     try {
       await axios.post("/api/instances", {
         instanceName: formData.get("instanceName"),
@@ -74,6 +79,13 @@ export default function NewFormPage() {
     setInstanceName(generateName());
   };
 
+  const isValidName = (name: string) => {
+    const regex = /^[a-z0-9-_]+$/ig
+    return regex.test(name) &&
+      name.length <= 64 &&
+      name.length >= 3;
+  }
+
   return (
     <>
       {loading ? (
@@ -92,6 +104,7 @@ export default function NewFormPage() {
               name="instanceName"
               type="text"
               value={instanceName}
+              style={isValidName(instanceName) ? {} : { border: 'solid red 1px', color: 'red' }}
               onChange={(e) => setInstanceName(e.target.value)}
             />
             <button type="button" onClick={handleGenerate}>
