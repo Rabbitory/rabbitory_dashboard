@@ -20,7 +20,7 @@ export default function NewFormPage() {
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
   const [instanceTypes, setInstanceTypes] = useState<Record<string, string[]>>({});
   const [instantiating, setInstantiating] = useState<boolean>(false);
-  const [selectedMajorType, setSelectedMajorType] = useState<string>("");
+  const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
   const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
 
   useEffect(() => {
@@ -38,7 +38,6 @@ export default function NewFormPage() {
 
     const fetchInstanceTypes = async () => {
       try {
-        console.log("Fetching instance types");
         const { data } = await axios.get("/api/instanceTypes");
         setInstanceTypes(data.instanceTypes);
       } catch (error) {
@@ -52,10 +51,10 @@ export default function NewFormPage() {
 
   useEffect(() => {
     setFilteredInstanceTypes((prev) => {
-      const newFilteredTypes = instanceTypes[selectedMajorType] ?? [];
+      const newFilteredTypes = instanceTypes[selectedInstanceType] ?? [];
       return prev !== newFilteredTypes ? newFilteredTypes : prev; // Prevent unnecessary updates
     });
-  }, [selectedMajorType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
+  }, [selectedInstanceType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
   
   
 
@@ -64,7 +63,7 @@ export default function NewFormPage() {
       await axios.post("/api/instances", {
         instanceName: formData.get("instanceName"),
         region: formData.get("region"),
-        instanceType: formData.get("instanceType"),
+        instanceType: formData.get("instanceSize"),
         username: formData.get("username"),
         password: formData.get("password"),
       });
@@ -112,30 +111,30 @@ export default function NewFormPage() {
               ))}
             </select><br></br>
 
-            {/* Major Type Selection */}
-            <label htmlFor="majorType">Instance Major Type: </label>
+            {/* Instance Type Selection */}
+            <label htmlFor="instanceType">Instance Type: </label>
             <select
-              id="majorType"
-              name="majorType"
-              value={selectedMajorType}
-              onChange={(e) => setSelectedMajorType(e.target.value)}
+              id="instanceType"
+              name="instanceType"
+              value={selectedInstanceType}
+              onChange={(e) => setSelectedInstanceType(e.target.value)}
             >
-              <option value="">Select a major type</option>
-              {Object.keys(instanceTypes).map((majorType) => (
-                <option key={majorType} value={majorType}>
-                  {majorType}
+              <option value="">Select an instance type</option>
+              {Object.keys(instanceTypes).map((type) => (
+                <option key={type} value={type}>
+                  {type}
                 </option>
               ))}
             </select>
             <br />
 
-            {/* Subtype Selection */}
-            <label htmlFor="instanceType">Instance Type: </label>
-            <select id="instanceType" name="instanceType" disabled={!selectedMajorType}>
-              <option value="">Select a subtype</option>
-              {filteredInstanceTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
+            {/* Instance Size Selection */}
+            <label htmlFor="instanceSize">Instance Size: </label>
+            <select id="instanceSize" name="instanceSize" disabled={!selectedInstanceType}>
+              <option value="">Select an instance size</option>
+              {filteredInstanceTypes.map((size) => (
+                <option key={size} value={size}>
+                  {size}
                 </option>
               ))}
             </select>
