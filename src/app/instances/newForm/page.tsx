@@ -3,25 +3,22 @@
 import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-// import { _InstanceType } from "@aws-sdk/client-ec2";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
-
-// const instanceOptions: Record<string, string[]> = {
-//   m8g: ["m8g.medium", "m8g.large", "m8g.xlarge"],
-//   c7gn: ["c7gn.medium", "c7gn.large", "c7gn.xlarge"],
-//   t2: ["t2.micro", "t2.small", "t2.medium"], // Keep your default ones
-// };
 
 export default function NewFormPage() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [instanceName, setInstanceName] = useState<string>("");
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
-  const [instanceTypes, setInstanceTypes] = useState<Record<string, string[]>>({});
+  const [instanceTypes, setInstanceTypes] = useState<Record<string, string[]>>(
+    {},
+  );
   const [instantiating, setInstantiating] = useState<boolean>(false);
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
-  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
+    [],
+  );
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -43,7 +40,7 @@ export default function NewFormPage() {
       } catch (error) {
         console.log("Error fetching instance types:", error);
       }
-    }
+    };
 
     fetchRegions();
     fetchInstanceTypes();
@@ -55,8 +52,6 @@ export default function NewFormPage() {
       return prev !== newFilteredTypes ? newFilteredTypes : prev; // Prevent unnecessary updates
     });
   }, [selectedInstanceType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
-  
-  
 
   const handleSubmit = async (formData: FormData) => {
     try {
@@ -101,7 +96,8 @@ export default function NewFormPage() {
             />
             <button type="button" onClick={handleGenerate}>
               Generate Instance Name
-            </button><br></br>
+            </button>
+            <br />
             <label htmlFor="region">Region: </label>
             <select id="region" name="region" disabled={instantiating}>
               {availableRegions.map((region) => (
@@ -109,7 +105,8 @@ export default function NewFormPage() {
                   {region}
                 </option>
               ))}
-            </select><br></br>
+            </select>
+            <br />
 
             {/* Instance Type Selection */}
             <label htmlFor="instanceType">Instance Type: </label>
@@ -130,7 +127,11 @@ export default function NewFormPage() {
 
             {/* Instance Size Selection */}
             <label htmlFor="instanceSize">Instance Size: </label>
-            <select id="instanceSize" name="instanceSize" disabled={!selectedInstanceType}>
+            <select
+              id="instanceSize"
+              name="instanceSize"
+              disabled={!selectedInstanceType}
+            >
               <option value="">Select an instance size</option>
               {filteredInstanceTypes.map((size) => (
                 <option key={size} value={size}>
@@ -141,9 +142,11 @@ export default function NewFormPage() {
             <br />
 
             <label htmlFor="username">Username: </label>
-            <input id="username" name="username" type="text" /><br></br>
+            <input id="username" name="username" type="text" />
+            <br />
             <label htmlFor="password">Password: </label>
             <input id="password" name="password" type="password" />
+            <br />
             <button type="submit">Submit</button>
           </fieldset>
         </Form>
