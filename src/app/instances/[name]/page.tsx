@@ -85,6 +85,13 @@ export default function InstancePage({ params }: InstancePageProps) {
               <Link href="/">
                 <button>Go Back</button>
               </Link>
+              <button
+                onClick={() =>
+                  window.open(`http://${instance?.publicDns}:15672`)
+                }
+              >
+                To RabbitMQ Manager
+              </button>
             </ul>
           </section>
         </>
