@@ -1,6 +1,6 @@
-import '@/app/global.css';
+import Link from "next/link";
 
-export default function RootLayout({
+export default function InstanceLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -9,8 +9,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <header className="top-header">
-          <h1>Rabbitory</h1>
-          {/* <p>Current Instance</p> */}
+          <p className="header">Current Instance Name</p>
+          <Link href="/">Home</Link>
         </header>
         <main>
           {children}
