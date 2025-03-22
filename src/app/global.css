@@ -1,8 +1,9 @@
 body {
-  font-family: 'Courier New', Courier, monospace;
+  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 40px;
 }
 
-.top-header {
+.top-header h1, .top-header p, .top-header Link {
   display: inline-block;
-  color: red;
+  padding-right: 30px;
 }
