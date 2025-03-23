@@ -16,7 +16,7 @@ export const storeCredentialsToDynamoDB = async (credentials: credentialsType, r
   })
 
   const response = await docClient.send(command);
-  console.log(response)
+  console.log("Metadata successfully written to DynamoDB")
   return response;
 }
 
