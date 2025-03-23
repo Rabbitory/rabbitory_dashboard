@@ -42,7 +42,6 @@ export async function getEC2InstanceTypes(): Promise<Record<string, string[]>> {
       t2: allSpecifiedInstanceTypes.filter((type) => type.startsWith("t2")),
     };
 
-    console.log(allowedInstanceTypes);
     return allowedInstanceTypes;
   } catch (error) {
     console.error("Error fetching instance types:", error);
