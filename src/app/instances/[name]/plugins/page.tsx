@@ -35,7 +35,7 @@ export default function PluginsPage({ params }: PluginsPageProps) {
     fetchPlugins();
   }, [name]);
   return (
-    <div>
+    <>
       {isFetching && <div>Loading...</div>}
       <table className={styles.table}>
         <thead>
@@ -70,6 +70,6 @@ export default function PluginsPage({ params }: PluginsPageProps) {
           })}
         </tbody>
       </table>
-    </div>
+    </>
   );
 }
