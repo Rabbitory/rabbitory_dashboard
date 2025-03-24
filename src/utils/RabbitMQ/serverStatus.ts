@@ -8,6 +8,7 @@ import {
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
+  instanceName: string,
   username: string,
   password: string,
   region: string
@@ -51,7 +52,7 @@ export async function pollRabbitMQServerStatus(
       if (response.data && response.data.status === "ok" && instanceId !== undefined) {
         console.log("RabbitMQ is up; storing credentials in DynamoDB...");
         // TOTO:
-        await storeCredentialsToDynamoDB({ instanceId, username, password }, region);
+        await storeCredentialsToDynamoDB({ instanceId, instanceName, username, password }, region);
         return; // Stop polling once the server is up and credentials stored.
       }
     } catch (error: unknown) {
