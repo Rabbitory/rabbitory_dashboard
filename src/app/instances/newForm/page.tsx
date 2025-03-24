@@ -139,7 +139,6 @@ export default function NewFormPage() {
               ))}
             </select>
             <br />
-
             {/* Instance Type Selection */}
             <label htmlFor="instanceType">Instance Type: </label>
             <select
@@ -156,7 +155,6 @@ export default function NewFormPage() {
               ))}
             </select>
             <br />
-
             {/* Instance Size Selection */}
             <label htmlFor="instanceSize">Instance Size: </label>
             <select
@@ -172,14 +170,15 @@ export default function NewFormPage() {
               ))}
             </select>
             <br />
-
             <label htmlFor="storageSize">Storage Size: </label>
             <input
               id="storageSize"
               name="storageSize"
               type="number"
               defaultValue={8}
+              style={{ MozAppearance: "textfield" }}
             />
+            gb
             <br />
             <label htmlFor="username">Username: </label>
             <input id="username" name="username" type="text" />
