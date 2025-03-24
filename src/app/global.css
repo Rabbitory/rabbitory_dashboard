@@ -1,9 +1,13 @@
+@import "tailwindcss";
+
 body {
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   margin: 40px;
 }
 
-.top-header h1, .top-header p, .top-header Link {
+.top-header h1,
+.top-header p,
+.top-header Link {
   display: inline-block;
   padding-right: 30px;
 }
