@@ -29,7 +29,7 @@ export const GET = async () => {
   }
 
   const instances = response.Reservations.flatMap(
-    (reservation) => reservation.Instances
+    (reservation) => reservation.Instances,
   );
 
   const formattedInstances = instances.map((instance) => {
@@ -52,23 +52,31 @@ export const POST = async (request: Request) => {
   if (!body) {
     return NextResponse.json(
       { message: "Invalid request body" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  const { region, instanceName, instanceType, username, password } = body;
+  const {
+    region,
+    instanceName,
+    instanceType,
+    username,
+    password,
+    storageSize,
+  } = body;
   const createInstanceResult = await createInstance(
     region,
     instanceName,
     instanceType,
     username,
-    password
+    password,
+    storageSize,
   );
 
   if (!createInstanceResult) {
     return NextResponse.json(
       { message: "Error creating instance" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
