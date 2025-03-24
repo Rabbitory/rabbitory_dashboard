@@ -3,6 +3,7 @@
 import Link from "next/link";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Instance {
   name: string;
@@ -10,6 +11,7 @@ interface Instance {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [instances, setInstances] = useState<Instance[]>([]);
 
   useEffect(() => {
@@ -30,6 +32,10 @@ export default function Home() {
             <Link href={`/instances/${instance.name}`}>
               {instance.name} | {instance.id}
             </Link>
+            <select name={instance.id}>
+              <option value="">Edit</option>
+              <option value="delete" onClick={() => router.push(`/instances/${instance.name}/edit/delete`)}>Delete</option>
+            </select>
           </li>
         ))}
       </ul>
