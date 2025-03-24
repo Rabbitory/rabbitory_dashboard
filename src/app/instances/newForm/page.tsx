@@ -55,10 +55,22 @@ export default function NewFormPage() {
 
   const handleSubmit = async (formData: FormData) => {
     if (!isValidName(instanceName)) {
-      alert('Instance name must be 3-64 characters long.\nSupports alphanumeric characters, - and _');
+      alert(
+        "Instance name must be 3-64 characters long.\nSupports alphanumeric characters, - and _",
+      );
+      setInstantiating(false);
       return;
     }
-    
+
+    if (
+      formData.get("storageSize") === null ||
+      !isValidStorageSize(Number(formData.get("storageSize")))
+    ) {
+      alert("Storage size must be between 1 & 10000.");
+      setInstantiating(false);
+      return;
+    }
+
     try {
       await axios.post("/api/instances", {
         instanceName: formData.get("instanceName"),
@@ -66,6 +78,7 @@ export default function NewFormPage() {
         instanceType: formData.get("instanceSize"),
         username: formData.get("username"),
         password: formData.get("password"),
+        storageSize: formData.get("storageSize"),
       });
       router.push("/");
     } catch (error) {
@@ -80,11 +93,13 @@ export default function NewFormPage() {
   };
 
   const isValidName = (name: string) => {
-    const regex = /^[a-z0-9-_]+$/ig
-    return regex.test(name) &&
-      name.length <= 64 &&
-      name.length >= 3;
-  }
+    const regex = /^[a-z0-9-_]+$/gi;
+    return regex.test(name) && name.length <= 64 && name.length >= 3;
+  };
+
+  const isValidStorageSize = (size: number) => {
+    return size >= 1 && size <= 10000;
+  };
 
   return (
     <>
@@ -104,7 +119,11 @@ export default function NewFormPage() {
               name="instanceName"
               type="text"
               value={instanceName}
-              style={isValidName(instanceName) ? {} : { border: 'solid red 1px', color: 'red' }}
+              style={
+                isValidName(instanceName)
+                  ? {}
+                  : { border: "solid red 1px", color: "red" }
+              }
               onChange={(e) => setInstanceName(e.target.value)}
             />
             <button type="button" onClick={handleGenerate}>
@@ -154,6 +173,14 @@ export default function NewFormPage() {
             </select>
             <br />
 
+            <label htmlFor="storageSize">Storage Size: </label>
+            <input
+              id="storageSize"
+              name="storageSize"
+              type="number"
+              defaultValue={8}
+            />
+            <br />
             <label htmlFor="username">Username: </label>
             <input id="username" name="username" type="text" />
             <br />

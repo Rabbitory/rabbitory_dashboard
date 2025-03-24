@@ -52,7 +52,8 @@ export default async function createInstance(
   instanceName: string,
   instanceType: _InstanceType = "t2.micro",
   username: string = "admin",
-  password: string = "password"
+  password: string = "password",
+  storageSize: number = 8,
 ) {
   const userDataScript = `#!/bin/bash
 # Update package lists and install RabbitMQ server and wget
@@ -130,17 +131,17 @@ echo "Waiting for RabbitMQ management interface to become available..."
 while true; do
   # Send a GET request to the health check endpoint using curl.
   response=$(curl -s -u "${username}:${password}" http://localhost:15672/api/health/checks/port-listener/15672)
-  
+
   # Check if the response contains "status":"ok"
   if echo "$response" | grep -q '"status":"ok"'; then
     echo "RabbitMQ management interface is up."
     break
   fi
-  
+
   # Wait for the specified interval before checking again.
   sleep \$interval
   elapsed=\$((elapsed + interval))
-  
+
   # If the maximum wait time is exceeded, exit with an error.
   if [ \$elapsed -ge \$max_wait ]; then
     echo "Timeout waiting for RabbitMQ management interface."
@@ -164,7 +165,7 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
   const vpcId = await getDefaultVpcId(ec2Client);
   const IPN = await getInstanceProfileByName(
     "RMQBrokerInstanceProfile",
-    region
+    region,
   );
 
   if (!IPN) return false;
@@ -198,6 +199,16 @@ rabbitmqadmin declare binding source="amq.rabbitmq.log" destination="logstream" 
             Value: "Rabbitory",
           },
         ],
+      },
+    ],
+    BlockDeviceMappings: [
+      {
+        DeviceName: "/dev/sda1",
+        Ebs: {
+          VolumeSize: storageSize,
+          VolumeType: "gp3",
+          DeleteOnTermination: true,
+        },
       },
     ],
   };
