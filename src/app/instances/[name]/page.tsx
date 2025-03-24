@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { _InstanceType } from "@aws-sdk/client-ec2";
 import formatDate from "@/utils/formatDate";
 import Link from "next/link";
+import * as argon2 from "argon2";
 
 interface Params {
   name: string;
