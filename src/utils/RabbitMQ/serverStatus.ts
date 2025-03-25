@@ -1,5 +1,5 @@
 import axios, { Axios } from "axios";
-import { storeMetadataToDynamoDB } from "./storeMetadataToDynamoDB";
+import { storeMetadataToDynamoDB } from "../storeMetadataToDynamoDB";
 import {
   waitUntilInstanceRunning,
   EC2Client,
