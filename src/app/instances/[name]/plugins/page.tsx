@@ -36,40 +36,45 @@ export default function PluginsPage({ params }: PluginsPageProps) {
   }, [name]);
   return (
     <>
-      {isFetching && <div>Loading...</div>}
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th className={styles.th}>Plugin Name</th>
-            <th className={styles.th}>Description</th>
-            <th className={styles.th}>Status &amp; Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pluginList.map((plugin, idx) => {
-            const isEnabled = enabledPlugins.includes(plugin.name);
-            return (
-              <tr key={idx}>
-                <td className={styles.td}>{plugin.name}</td>
-                <td className={styles.td}>{plugin.description}</td>
-                <td className={styles.td}>
-                  <label className={styles.switch}>
-                    <input
-                      type="checkbox"
-                      checked={isEnabled}
-                      onChange={() => console.log("toggle")}
-                    />
-                    <span className={styles.slider}></span>
-                  </label>
-                  <span className={styles.toggleText}>
-                    {isEnabled ? "Enabled" : "Disabled"}
-                  </span>
-                </td>
+      {isFetching ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.th}>Plugin Name</th>
+                <th className={styles.th}>Description</th>
+                <th className={styles.th}>Status &amp; Action</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {pluginList.map((plugin, idx) => {
+                const isEnabled = enabledPlugins.includes(plugin.name);
+                return (
+                  <tr key={idx}>
+                    <td className={styles.td}>{plugin.name}</td>
+                    <td className={styles.td}>{plugin.description}</td>
+                    <td className={styles.td}>
+                      <label className={styles.switch}>
+                        <input
+                          type="checkbox"
+                          checked={isEnabled}
+                          onChange={() => console.log("toggle")}
+                        />
+                        <span className={styles.slider}></span>
+                      </label>
+                      <span className={styles.toggleText}>
+                        {isEnabled ? "Enabled" : "Disabled"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
+      )}
     </>
   );
 }

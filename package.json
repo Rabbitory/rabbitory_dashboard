@@ -13,7 +13,7 @@
     "@aws-sdk/client-dynamodb": "^3.772.0",
     "@aws-sdk/client-ec2": "^3.767.0",
     "@aws-sdk/client-iam": "^3.758.0",
-    "@aws-sdk/client-ssm": "^3.759.0",
+    "@aws-sdk/client-ssm": "^3.774.0",
     "@aws-sdk/lib-dynamodb": "^3.772.0",
     "axios": "^1.8.4",
     "next": "15.2.3",

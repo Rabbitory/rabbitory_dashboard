@@ -42,28 +42,32 @@ export default function VersionsPage({ params }: VersionsPageProps) {
   }, [name]);
   return (
     <>
-      {" "}
-      {isFetching && <div>Loading...</div>}
-      <h2>Versions</h2>
-      <table className={styles.table}>
-        <tbody>
-          <tr>
-            <td className={styles.td}>
-              Current RabbitMQ version
-              <br />
-              Current Erlang version
-            </td>
-            <td className={styles.td}>
-              {versions?.rabbitmq}
-              <br />
-              {versions?.erlang}
-            </td>
-            <td className={styles.td}>
-              <button>Update</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      {isFetching ? (
+        <div>Loading...</div>
+      ) : (
+        <>
+          <h2>Versions</h2>
+          <table className={styles.table}>
+            <tbody>
+              <tr>
+                <td className={styles.td}>
+                  Current RabbitMQ version
+                  <br />
+                  Current Erlang version
+                </td>
+                <td className={styles.td}>
+                  {versions?.rabbitmq}
+                  <br />
+                  {versions?.erlang}
+                </td>
+                <td className={styles.td}>
+                  <button>Update</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </>
+      )}
     </>
   );
 }

@@ -16,7 +16,7 @@ export default function NavLayout({ name }: NavLayoutProps) {
           <Link href={`/instances/${name}/versions`}>Versions</Link>
         </li>
         <li>
-          <Link href={`/instances/${name}`}>Page 3</Link>
+          <Link href={`/instances/${name}/configuration`}>Configuration</Link>
         </li>
       </ul>
     </nav>
