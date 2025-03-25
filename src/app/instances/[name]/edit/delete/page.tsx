@@ -18,27 +18,11 @@ interface DeletePageParams {
   params: Promise<Params>;
 }
 
-const instance = await axios.get(`/api/instances/${name}`);
-
 export default function DeletePage({ params }: DeletePageParams) {
   const { name } = React.use(params);
   const [inputText, setInputText] = useState("");
   const [validInput, setValidInput] = useState(false);
-  const [instance, setInstance] = useState<Instance | null>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchInstance = async () => {
-      try {
-        const response = await axios.get(`/api/instances/${name}`);
-        setInstance(response.data);
-      } catch (error) {
-        console.error("Error fetching instance:", error);
-      }
-    };
-
-    fetchInstance();
-  }, [name]);
 
   useEffect(() => {
     const isValidInput = inputText === name;
@@ -54,7 +38,7 @@ export default function DeletePage({ params }: DeletePageParams) {
   const handleDelete = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      // deleteInstanceByName(name);
+      axios.post(`/api/instances/${name}/delete`);
     } catch (err) {
       console.error("Error deleting instance:", err);
     }
