@@ -39,6 +39,7 @@ export default function DeletePage({ params }: DeletePageParams) {
     e.preventDefault();
     try {
       axios.post(`/api/instances/${name}/delete`);
+      router.push(`/`);
     } catch (err) {
       console.error("Error deleting instance:", err);
     }
