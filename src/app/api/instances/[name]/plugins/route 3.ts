@@ -1,4 +1,4 @@
-import { EC2Client } from "@aws-sdk/client-ec2";
+import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import axios from "axios";

@@ -1,5 +1,5 @@
 import axios, { Axios } from "axios";
-import { storeCredentialsToDynamoDB } from "./storeCredentialsToDynamoDB";
+import { storeMetadataToDynamoDB } from "../storeMetadataToDynamoDB";
 import {
   waitUntilInstanceRunning,
   EC2Client,
@@ -8,6 +8,7 @@ import {
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
+  instanceName: string,
   username: string,
   password: string,
   region: string
@@ -49,10 +50,10 @@ export async function pollRabbitMQServerStatus(
         },
       });
       if (response.data && response.data.status === "ok" && instanceId !== undefined) {
-        console.log("RabbitMQ is up; storing credentials in DynamoDB...");
+        console.log("RabbitMQ is up; storing metadata in DynamoDB...");
         // TOTO:
-        await storeCredentialsToDynamoDB({ instanceId, username, password }, region);
-        return; // Stop polling once the server is up and credentials stored.
+        await storeMetadataToDynamoDB({ instanceId, instanceName, username, password }, region);
+        return; // Stop polling once the server is up and metadata stored.
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
@@ -63,7 +64,7 @@ export async function pollRabbitMQServerStatus(
           }
         } else {
           console.log(
-            "RabbitMQ is up, waiting for credentials to be available..."
+            "RabbitMQ is up, waiting for metadata to be available..."
           );
         }
       } else {
