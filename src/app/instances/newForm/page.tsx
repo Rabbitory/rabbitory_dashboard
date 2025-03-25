@@ -6,19 +6,17 @@ import { useState, useEffect } from "react";
 import generateName from "@/utils/randomNameGenerator";
 import axios from "axios";
 
+type InstanceTypes = Record<string, string[]>;
+
 export default function NewFormPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [instanceName, setInstanceName] = useState<string>("");
-  const [availableRegions, setAvailableRegions] = useState<string[]>([]);
-  const [instanceTypes, setInstanceTypes] = useState<Record<string, string[]>>(
-    {},
-  );
-  const [instantiating, setInstantiating] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
+  const [instanceName, setInstanceName] = useState("");
+  const [availableRegions, setAvailableRegions] = useState([]);
+  const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
+  const [instantiating, setInstantiating] = useState(false);
   const [selectedInstanceType, setSelectedInstanceType] = useState<string>("");
-  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>(
-    [],
-  );
+  const [filteredInstanceTypes, setFilteredInstanceTypes] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchRegions = async () => {
@@ -47,25 +45,17 @@ export default function NewFormPage() {
   }, []);
 
   useEffect(() => {
-    setFilteredInstanceTypes((prev) => {
-      const newFilteredTypes = instanceTypes[selectedInstanceType] ?? [];
-      return prev !== newFilteredTypes ? newFilteredTypes : prev; // Prevent unnecessary updates
-    });
-  }, [selectedInstanceType, instanceTypes]); // Keep instanceTypes but avoid unnecessary re-renders
+    setFilteredInstanceTypes(instanceTypes[selectedInstanceType] ?? []);
+  }, [selectedInstanceType, instanceTypes]);
 
   const handleSubmit = async (formData: FormData) => {
     if (!isValidName(instanceName)) {
-      alert(
-        "Instance name must be 3-64 characters long.\nSupports alphanumeric characters, - and _",
-      );
+      alert("Instance name must be 3-64 characters long with valid characters.");
       setInstantiating(false);
       return;
     }
 
-    if (
-      formData.get("storageSize") === null ||
-      !isValidStorageSize(Number(formData.get("storageSize")))
-    ) {
+    if (!isValidStorageSize(Number(formData.get("storageSize")))) {
       alert("Storage size must be between 1 & 10000.");
       setInstantiating(false);
       return;
@@ -87,19 +77,13 @@ export default function NewFormPage() {
     }
   };
 
-  const handleGenerate = (e: React.FormEvent) => {
+  const handleGenerate = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
     setInstanceName(generateName());
   };
 
-  const isValidName = (name: string) => {
-    const regex = /^[a-z0-9-_]+$/gi;
-    return regex.test(name) && name.length <= 64 && name.length >= 3;
-  };
-
-  const isValidStorageSize = (size: number) => {
-    return size >= 1 && size <= 10000;
-  };
+  const isValidName = (name: string) => /^[a-z0-9-_]{3,64}$/i.test(name);
+  const isValidStorageSize = (size: number) => size >= 1 && size <= 10000;
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
@@ -116,37 +100,52 @@ export default function NewFormPage() {
         >
           <fieldset disabled={instantiating} className="space-y-4">
             <div>
-              <label className="block text-gray-700">Instance Name:</label>
+              <label htmlFor="instanceName" className="block text-gray-700">
+                Instance Name:
+              </label>
               <div className="flex gap-2">
                 <input
-                  type="text"
+                  id="instanceName"
                   name="instanceName"
+                  type="text"
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                  className={`w-full p-2 border rounded-md ${!isValidName(instanceName) ? 'border-red-500 text-red-500' : 'border-gray-300'}`}
                 />
                 <button
                   type="button"
                   onClick={handleGenerate}
                   className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
                 >
-                  Generate random name
+                  Generate
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-gray-700">Region:</label>
-              <select name="region" className="w-full p-2 border rounded-md">
+              <label htmlFor="region" className="block text-gray-700">
+                Region:
+              </label>
+              <select
+                id="region"
+                name="region"
+                disabled={instantiating}
+                className="w-full p-2 border rounded-md"
+              >
                 {availableRegions.map((region) => (
-                  <option key={region} value={region}>{region}</option>
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-gray-700">Instance Type:</label>
+              <label htmlFor="instanceType" className="block text-gray-700">
+                Instance Type:
+              </label>
               <select
+                id="instanceType"
                 name="instanceType"
                 value={selectedInstanceType}
                 onChange={(e) => setSelectedInstanceType(e.target.value)}
@@ -154,29 +153,67 @@ export default function NewFormPage() {
               >
                 <option value="">Select an instance type</option>
                 {Object.keys(instanceTypes).map((type) => (
-                  <option key={type} value={type}>{type}</option>
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-gray-700">Storage Size (GB):</label>
+              <label htmlFor="instanceSize" className="block text-gray-700">
+                Instance Size:
+              </label>
+              <select
+                id="instanceSize"
+                name="instanceSize"
+                disabled={!selectedInstanceType}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="">Select an instance size</option>
+                {filteredInstanceTypes.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="storageSize" className="block text-gray-700">
+                Storage Size (GB):
+              </label>
               <input
-                type="number"
+                id="storageSize"
                 name="storageSize"
+                type="number"
                 defaultValue={8}
                 className="w-full p-2 border rounded-md"
               />
             </div>
 
             <div>
-              <label className="block text-gray-700">Username:</label>
-              <input type="text" name="username" className="w-full p-2 border rounded-md" />
+              <label htmlFor="username" className="block text-gray-700">
+                Username:
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                className="w-full p-2 border rounded-md"
+              />
             </div>
 
             <div>
-              <label className="block text-gray-700">Password:</label>
-              <input type="password" name="password" className="w-full p-2 border rounded-md" />
+              <label htmlFor="password" className="block text-gray-700">
+                Password:
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                className="w-full p-2 border rounded-md"
+              />
             </div>
 
             <button
@@ -188,6 +225,7 @@ export default function NewFormPage() {
           </fieldset>
         </Form>
       )}
+
       {instantiating && <p className="text-green-500 mt-4">Creating instance...</p>}
     </div>
   );
