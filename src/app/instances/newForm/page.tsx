@@ -102,96 +102,93 @@ export default function NewFormPage() {
   };
 
   return (
-    <>
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-semibold text-gray-900 mb-6">Create Instance</h1>
       {loading ? (
-        "Loading..."
+        <p className="text-gray-600">Loading...</p>
       ) : (
         <Form
           action={(formData) => {
             setInstantiating(true);
             handleSubmit(formData);
           }}
+          className="space-y-4"
         >
-          <fieldset disabled={instantiating}>
-            <label htmlFor="instanceName">Instance Name:</label>
-            <input
-              id="instanceName"
-              name="instanceName"
-              type="text"
-              value={instanceName}
-              style={
-                isValidName(instanceName)
-                  ? {}
-                  : { border: "solid red 1px", color: "red" }
-              }
-              onChange={(e) => setInstanceName(e.target.value)}
-            />
-            <button type="button" onClick={handleGenerate}>
-              Generate Instance Name
+          <fieldset disabled={instantiating} className="space-y-4">
+            <div>
+              <label className="block text-gray-700">Instance Name:</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="instanceName"
+                  value={instanceName}
+                  onChange={(e) => setInstanceName(e.target.value)}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                />
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Generate random name
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Region:</label>
+              <select name="region" className="w-full p-2 border rounded-md">
+                {availableRegions.map((region) => (
+                  <option key={region} value={region}>{region}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Instance Type:</label>
+              <select
+                name="instanceType"
+                value={selectedInstanceType}
+                onChange={(e) => setSelectedInstanceType(e.target.value)}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="">Select an instance type</option>
+                {Object.keys(instanceTypes).map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Storage Size (GB):</label>
+              <input
+                type="number"
+                name="storageSize"
+                defaultValue={8}
+                className="w-full p-2 border rounded-md"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Username:</label>
+              <input type="text" name="username" className="w-full p-2 border rounded-md" />
+            </div>
+
+            <div>
+              <label className="block text-gray-700">Password:</label>
+              <input type="password" name="password" className="w-full p-2 border rounded-md" />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2 bg-green-400 text-white rounded-md hover:bg-green-300 focus:ring-2 focus:ring-green-500"
+            >
+              Submit
             </button>
-            <br />
-            <label htmlFor="region">Region: </label>
-            <select id="region" name="region" disabled={instantiating}>
-              {availableRegions.map((region) => (
-                <option key={region} value={region}>
-                  {region}
-                </option>
-              ))}
-            </select>
-            <br />
-            {/* Instance Type Selection */}
-            <label htmlFor="instanceType">Instance Type: </label>
-            <select
-              id="instanceType"
-              name="instanceType"
-              value={selectedInstanceType}
-              onChange={(e) => setSelectedInstanceType(e.target.value)}
-            >
-              <option value="">Select an instance type</option>
-              {Object.keys(instanceTypes).map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-            <br />
-            {/* Instance Size Selection */}
-            <label htmlFor="instanceSize">Instance Size: </label>
-            <select
-              id="instanceSize"
-              name="instanceSize"
-              disabled={!selectedInstanceType}
-            >
-              <option value="">Select an instance size</option>
-              {filteredInstanceTypes.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-            <br />
-            <label htmlFor="storageSize">Storage Size: </label>
-            <input
-              id="storageSize"
-              name="storageSize"
-              type="number"
-              defaultValue={8}
-              style={{ MozAppearance: "textfield" }}
-            />
-            gb
-            <br />
-            <label htmlFor="username">Username: </label>
-            <input id="username" name="username" type="text" />
-            <br />
-            <label htmlFor="password">Password: </label>
-            <input id="password" name="password" type="password" />
-            <br />
-            <button type="submit">Submit</button>
           </fieldset>
         </Form>
       )}
-
-      {instantiating ? <div className="loading">Creating instance...</div> : ""}
-    </>
+      {instantiating && <p className="text-green-500 mt-4">Creating instance...</p>}
+    </div>
   );
 }
