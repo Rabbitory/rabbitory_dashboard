@@ -3,8 +3,8 @@
 import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { _InstanceType } from "@aws-sdk/client-ec2";
 import formatDate from "@/utils/formatDate";
+import Instance from "@/types/instance";
 import Link from "next/link";
 
 interface Params {
@@ -12,20 +12,6 @@ interface Params {
 }
 interface InstancePageProps {
   params: Promise<Params>;
-}
-
-interface Instance {
-  name: string;
-  id: string;
-  type: _InstanceType;
-  publicDns: string;
-  launchTime: string;
-  region: string;
-  port: number;
-  user: string;
-  password: string;
-  endpointUrl: string;
-  state: string;
 }
 
 export default function InstancePage({ params }: InstancePageProps) {
@@ -37,7 +23,6 @@ export default function InstancePage({ params }: InstancePageProps) {
       setIsFetching(true);
       try {
         const response = await axios.get(`/api/instances/${name}`);
-        console.log(response.data);
         setInstance(response.data);
       } catch (error) {
         console.error("Error fetching instance:", error);
