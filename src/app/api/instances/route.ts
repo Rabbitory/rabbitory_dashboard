@@ -82,7 +82,7 @@ export const POST = async (request: Request) => {
 
   const { instanceId } = createInstanceResult;
 
-  pollRabbitMQServerStatus(instanceId, username, password, region);
+  pollRabbitMQServerStatus(instanceId, instanceName, username, password, region);
   return NextResponse.json({
     name: instanceName,
     id: instanceId,
