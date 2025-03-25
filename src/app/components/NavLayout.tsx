@@ -10,13 +10,13 @@ export default function NavLayout({ name }: NavLayoutProps) {
     <nav className={styles.nav}>
       <ul>
         <li>
-          <Link href={`/instances/${name}/plugins`}>plugins</Link>
+          <Link href={`/instances/${name}/plugins`}>Plugins</Link>
         </li>
         <li>
-          <Link href={`/instances/${name}`}>Page 2</Link>
+          <Link href={`/instances/${name}/versions`}>Versions</Link>
         </li>
         <li>
-          <Link href={`/instances/${name}`}>Page 3</Link>
+          <Link href={`/instances/${name}/configuration`}>Configuration</Link>
         </li>
       </ul>
     </nav>

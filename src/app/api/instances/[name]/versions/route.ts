@@ -31,18 +31,18 @@ export async function GET(
   const username = "blackfries";
   const password = "blackfries";
   try {
-    const rabbitUrl = `http://${publicDns}:15672/api/nodes`;
+    const rabbitUrl = `http://${publicDns}:15672/api/overview`;
     const response = await axios.get(rabbitUrl, {
       auth: {
         username,
         password,
       },
     });
-    return NextResponse.json(response.data[0].enabled_plugins);
+    return NextResponse.json(response.data);
   } catch (error) {
-    console.error("Error fetching plugins:", error);
+    console.error("Error fetching versions:", error);
     return NextResponse.json(
-      { message: "Error fetching plugins", error: String(error) },
+      { message: "Error fetching versions", error: String(error) },
       { status: 500 }
     );
   }
