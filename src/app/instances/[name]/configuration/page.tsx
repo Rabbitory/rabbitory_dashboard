@@ -2,7 +2,6 @@
 import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { _InstanceType } from "@aws-sdk/client-ec2";
 import styles from "./ConfigurationPage.module.css";
 
 interface Params {
@@ -19,7 +18,7 @@ interface Configuration {
 export default function ConfigurationPage({ params }: ConfigurationPageProps) {
   const { name } = React.use(params);
   const [configuration, setConfiguration] = useState<Configuration | null>(
-    null
+    null,
   );
   const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
@@ -27,7 +26,7 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${name}/configuration`
+          `/api/instances/${name}/configuration`,
         );
         console.log(response.data);
         setConfiguration(response.data);
