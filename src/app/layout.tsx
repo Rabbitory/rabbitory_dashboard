@@ -29,7 +29,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
     <html lang="en">
       {/*jetBrainsMono.variable, roboto.variable   ${jetBrainsMono.variable}*/}
       <body className={`bg-gray-100 text-gray-900`}>
-        <div className="flex justify-between items-center bg-orange-300 text-white pt-8 pb-8 pl-15 pr-15">
+        <div className="flex justify-between items-center bg-orange-300 text-white pt-8 pb-8 pl-10 pr-10">
           <h1 className="text-4xl font-bold">
             <Link
               href="/"
