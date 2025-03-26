@@ -1,5 +1,5 @@
 import Link from "next/link";
-import styles from "./NavLayout.module.css"; // Optional CSS module
+// import styles from "./NavLayout.module.css"; // Optional CSS module
 
 interface NavLayoutProps {
   name: string;
@@ -7,16 +7,25 @@ interface NavLayoutProps {
 
 export default function NavLayout({ name }: NavLayoutProps) {
   return (
-    <nav className={styles.nav}>
+    <nav className="w-70 bg-gray-200 p-4 min-h-screen pl-10 pr-10">
+      <h1 className="text-xl font-semibold mt-8 mb-8 hover:text-gray-700">
+        <Link href={`/instances/${name}`}>Overview</Link>
+      </h1>
       <ul>
-        <li>
-          <Link href={`/instances/${name}/plugins`}>Plugins</Link>
+        <li className="mb-4">
+          <Link href={`/instances/${name}/plugins`} className="text-gray-700 text-xl hover:text-black">
+            Plugins
+          </Link>
         </li>
-        <li>
-          <Link href={`/instances/${name}/versions`}>Versions</Link>
+        <li className="mb-4">
+          <Link href={`/instances/${name}/versions`} className="text-gray-700 text-xl hover:text-black">
+            Versions
+          </Link>
         </li>
-        <li>
-          <Link href={`/instances/${name}/configuration`}>Configuration</Link>
+        <li className="mb-4">
+          <Link href={`/instances/${name}/configuration`} className="text-gray-700 text-xl hover:text-black">
+            Configuration
+          </Link>
         </li>
         <li>
           <Link href={`/instances/${name}/hardware`}>Hardware</Link>
