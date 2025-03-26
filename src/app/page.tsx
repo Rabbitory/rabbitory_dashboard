@@ -4,6 +4,7 @@ import Link from "next/link";
 import axios from "axios";
 import { useEffect, useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import Dropdown from "./components/Dropdown";
 
 interface Instance {
   name: string;
@@ -23,16 +24,6 @@ export default function Home() {
     fetchInstances();
   }, []);
 
-  const handleChange = (e: ChangeEvent<HTMLSelectElement>, name: string) => {
-    const action = e.target.value;
-    if (action !== undefined && action.length > 0) {
-      switch (action) {
-        case "delete":
-          router.push(`/instances/${name}/edit/delete`);
-      }
-    }
-  }
-
   return (
     <div className="p-6">
       {/* Heading and button on the same line */}
@@ -51,14 +42,16 @@ export default function Home() {
       ) : (
         <ul className="space-y-4">
           {instances.map((instance) => (
-            <li key={instance.name} className="p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50">
+            <li key={instance.name} className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50">
               <Link href={`/instances/${instance.name}`} className="text-xl text-blue-600 hover:underline">
                 {instance.name} | {instance.id}
               </Link>
-              <select name={instance.id} onChange={(e) => handleChange(e, instance.name)}>
-                <option value="">Edit</option>
-                <option value="delete">Delete</option>
-              </select>
+              <Dropdown
+                label="edit"
+                options={
+                  { delete: () => router.push(`/instances/${instance.name}/edit/delete`) }
+                }
+              />
             </li>
           ))}
         </ul>
