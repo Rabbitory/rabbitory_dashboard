@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import formatDate from "@/utils/formatDate";
 import Instance from "@/types/instance";
 import Link from "next/link";
-import * as argon2 from "argon2";
 
 interface Params {
   name: string;

@@ -12,15 +12,15 @@ const ec2Client = new EC2Client({ region: process.env.REGION });
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const { name: instanceName } = await params;
 
-  let instance = await fetchInstance(instanceName, ec2Client);
+  const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const instanceId = instance.InstanceId;
@@ -40,7 +40,7 @@ export async function GET(
     if (!commandId) {
       return NextResponse.json(
         { message: "Error sending command to instance" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -53,7 +53,7 @@ export async function GET(
         new GetCommandInvocationCommand({
           CommandId: commandId,
           InstanceId: instanceId,
-        })
+        }),
       );
       status = invocationRes.Status || "InProgress";
     }
@@ -64,7 +64,7 @@ export async function GET(
           message: "Failed to fetch config file",
           error: invocationRes ? String(invocationRes) : status,
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -76,7 +76,7 @@ export async function GET(
     console.error("Error fetching versions:", error);
     return NextResponse.json(
       { message: "Error fetching versions", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

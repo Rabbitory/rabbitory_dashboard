@@ -2,7 +2,6 @@
 import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { _InstanceType } from "@aws-sdk/client-ec2";
 import styles from "./VersionsPage.module.css";
 
 interface Params {

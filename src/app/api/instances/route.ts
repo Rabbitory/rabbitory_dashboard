@@ -22,10 +22,7 @@ export const GET = async () => {
   const response = await ec2Client.send(command);
 
   if (!response.Reservations) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({ message: "No instances found" }),
-    };
+    return new NextResponse("No instances found", { status: 404 });
   }
 
   const instances = response.Reservations.flatMap(
@@ -35,7 +32,10 @@ export const GET = async () => {
   const formattedInstances = instances.map((instance) => {
     if (!instance || !instance.Tags) {
       console.error("Instance or tags not found");
-      return null;
+      return NextResponse.json(
+        { message: "Instance or tags not found" },
+        { status: 404 },
+      );
     }
 
     return {
@@ -82,7 +82,13 @@ export const POST = async (request: Request) => {
 
   const { instanceId } = createInstanceResult;
 
-  pollRabbitMQServerStatus(instanceId, instanceName, username, password, region);
+  pollRabbitMQServerStatus(
+    instanceId,
+    instanceName,
+    username,
+    password,
+    region,
+  );
   return NextResponse.json({
     name: instanceName,
     id: instanceId,

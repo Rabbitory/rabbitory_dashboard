@@ -7,15 +7,15 @@ const ec2Client = new EC2Client({ region: process.env.REGION });
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ name: string }> }
+  { params }: { params: Promise<{ name: string }> },
 ) {
   const { name: instanceName } = await params;
 
-  let instance = await fetchInstance(instanceName, ec2Client);
+  const instance = await fetchInstance(instanceName, ec2Client);
   if (!instance) {
     return NextResponse.json(
       { message: `No instance found with name: ${instanceName}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
   const publicDns = instance.PublicDnsName;
@@ -23,7 +23,7 @@ export async function GET(
   if (!publicDns) {
     return NextResponse.json(
       { message: "Instance not ready yet! Try again later!" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -43,7 +43,7 @@ export async function GET(
     console.error("Error fetching plugins:", error);
     return NextResponse.json(
       { message: "Error fetching plugins", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

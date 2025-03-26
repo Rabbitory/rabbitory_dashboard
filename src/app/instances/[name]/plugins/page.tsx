@@ -3,7 +3,6 @@ import * as React from "react";
 import axios from "axios";
 import styles from "./PluginsPage.module.css";
 import { useEffect, useState } from "react";
-import { _InstanceType } from "@aws-sdk/client-ec2";
 import { plugins, Plugin } from "@/types/plugins";
 
 interface Params {
@@ -15,7 +14,7 @@ interface PluginsPageProps {
 
 export default function PluginsPage({ params }: PluginsPageProps) {
   const { name } = React.use(params);
-  const [pluginList, setPluginList] = useState<Plugin[]>(plugins);
+  const [pluginList] = useState<Plugin[]>(plugins);
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {

@@ -1,4 +1,4 @@
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { storeMetadataToDynamoDB } from "../storeMetadataToDynamoDB";
 import {
   waitUntilInstanceRunning,
@@ -11,12 +11,12 @@ export async function pollRabbitMQServerStatus(
   instanceName: string,
   username: string,
   password: string,
-  region: string
+  region: string,
 ) {
   const ec2Client = new EC2Client({ region });
   await waitUntilInstanceRunning(
     { client: ec2Client, maxWaitTime: 3000 },
-    { InstanceIds: instanceId ? [instanceId] : undefined }
+    { InstanceIds: instanceId ? [instanceId] : undefined },
   );
 
   const describeParams = {
@@ -49,10 +49,17 @@ export async function pollRabbitMQServerStatus(
           password,
         },
       });
-      if (response.data && response.data.status === "ok" && instanceId !== undefined) {
+      if (
+        response.data &&
+        response.data.status === "ok" &&
+        instanceId !== undefined
+      ) {
         console.log("RabbitMQ is up; storing metadata in DynamoDB...");
         // TOTO:
-        await storeMetadataToDynamoDB({ instanceId, instanceName, username, password }, region);
+        await storeMetadataToDynamoDB(
+          { instanceId, instanceName, username, password },
+          region,
+        );
         return; // Stop polling once the server is up and metadata stored.
       }
     } catch (error: unknown) {
@@ -64,7 +71,7 @@ export async function pollRabbitMQServerStatus(
           }
         } else {
           console.log(
-            "RabbitMQ is up, waiting for metadata to be available..."
+            "RabbitMQ is up, waiting for metadata to be available...",
           );
         }
       } else {
