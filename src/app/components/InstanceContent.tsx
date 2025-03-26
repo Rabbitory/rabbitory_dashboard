@@ -40,7 +40,9 @@ export function InstanceContent({
   return (
     <div className={styles.container}>
       <NavLayout name={name} />
-      <section className={styles.section}>{children}</section>
+      <section className="flex-1 max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+        {children}
+      </section>
     </div>
   );
 }
