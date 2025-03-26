@@ -22,18 +22,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="p-6">
-      {/* Heading and button on the same line */}
+    <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-semibold text-gray-900">Instances</h1>
+        <h1 className="text-4xl font-semibold text-gray-900 mt-15 mb-15">Instances</h1>
         <Link href="/instances/newForm">
-          <button className="py-2 px-6 bg-green-400 text-white rounded-md hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500">
-            Create New Instance
+          <button className="py-4 px-8 bg-green-400 text-white text-2xl rounded-full hover:bg-green-300 focus:outline-none focus:ring-2 focus:ring-green-500">
+            + Create New Instance
           </button>
         </Link>
       </div>
 
-      {/* Check if there are instances */}
       {instances.length === 0 ? (
         <p className="text-lg text-gray-600 mb-6">No instances yet.</p>
       ) : (
@@ -41,7 +39,7 @@ export default function Home() {
           {instances.map((instance) => (
             <li
               key={instance.name}
-              className="p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50"
+              className="p-7 border rounded-md shadow-sm bg-white hover:bg-gray-50"
             >
               <Link
                 href={`/instances/${instance.name}`}
