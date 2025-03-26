@@ -1,9 +1,21 @@
-// tailwind.config.ts
+  // roboto
+  // module.exports = {
+  //   theme: {
+  //     extend: {
+  //       fontFamily: {
+  //         sans: ['var(--font-roboto)', 'sans-serif'],
+  //       },
+  //     },
+  //   },
+  // };
+
+
+// jetbrains
 export default {
   theme: {
     extend: {
       fontFamily: {
-        plex: ['IBM Plex Sans', 'sans-serif'],
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
       },
     },
   },
