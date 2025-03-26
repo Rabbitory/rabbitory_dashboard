@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 
 interface Instance {
@@ -23,6 +23,15 @@ export default function Home() {
     fetchInstances();
   }, []);
 
+  const handleChange = (e: ChangeEvent<HTMLSelectElement>, name: string) => {
+    const action = e.target.value;
+    if (action !== undefined && action.length > 0) {
+      switch (action) {
+        case "delete":
+          router.push(`/instances/${name}/edit/delete`);
+      }
+    }
+  }
 
   return (
     <div className="p-6">
@@ -46,9 +55,9 @@ export default function Home() {
               <Link href={`/instances/${instance.name}`} className="text-xl text-blue-600 hover:underline">
                 {instance.name} | {instance.id}
               </Link>
-              <select name={instance.id}>
+              <select name={instance.id} onChange={(e) => handleChange(e, instance.name)}>
                 <option value="">Edit</option>
-                <option value="delete" onClick={() => router.push(`/instances/${instance.name}/edit/delete`)}>Delete</option>
+                <option value="delete">Delete</option>
               </select>
             </li>
           ))}
