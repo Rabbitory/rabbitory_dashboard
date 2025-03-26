@@ -18,6 +18,9 @@ export default function NavLayout({ name }: NavLayoutProps) {
         <li>
           <Link href={`/instances/${name}/configuration`}>Configuration</Link>
         </li>
+        <li>
+          <Link href={`/instances/${name}/hardware`}>Hardware</Link>
+        </li>
       </ul>
     </nav>
   );
