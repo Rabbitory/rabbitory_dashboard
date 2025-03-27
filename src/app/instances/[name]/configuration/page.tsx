@@ -3,30 +3,25 @@ import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import styles from "./ConfigurationPage.module.css";
-
-interface Params {
-  name: string;
-}
-interface ConfigurationPageProps {
-  params: Promise<Params>;
-}
+import { useInstanceContext } from "../InstanceContext";
 
 interface Configuration {
   [key: string]: string;
 }
 
-export default function ConfigurationPage({ params }: ConfigurationPageProps) {
-  const { name } = React.use(params);
+export default function ConfigurationPage() {
   const [configuration, setConfiguration] = useState<Configuration | null>(
     null,
   );
   const [isFetching, setIsFetching] = useState(false);
+  const { instance } = useInstanceContext();
+
   useEffect(() => {
     const fetchConfiguration = async () => {
       setIsFetching(true);
       try {
         const response = await axios.get(
-          `/api/instances/${name}/configuration`,
+          `/api/instances/${instance?.name}/configuration`,
         );
         console.log(response.data);
         setConfiguration(response.data);
@@ -38,7 +33,7 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
     };
 
     fetchConfiguration();
-  }, [name]);
+  }, [instance?.name]);
   return (
     <>
       {" "}
