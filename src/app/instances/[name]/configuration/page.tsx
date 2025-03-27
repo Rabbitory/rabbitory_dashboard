@@ -31,6 +31,7 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
         const response = await axios.get<Configuration>(
           `/api/instances/${name}/configuration`
         );
+        console.log(response.data);
         setConfiguration(response.data);
       } catch (error) {
         console.error("Error fetching configuration:", error);
