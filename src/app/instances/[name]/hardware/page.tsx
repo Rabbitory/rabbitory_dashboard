@@ -11,7 +11,13 @@ export default function HardwarePage() {
       <div>
         <h1>Hardware</h1>
         <p>Current instance hardware: {instance?.type}</p>
-        <Link href={`/instances/${instance?.name}/hardware/edit`}>Change</Link>
+        <Link href={`/instances/${instance?.name}/hardware/type/edit`}>
+          Change instance type
+        </Link>
+        <p>Current instance storage size: {instance?.EBSVolumeId}</p>
+        <Link href={`/instances/${instance?.name}/hardware/storage/edit`}>
+          Change storage size
+        </Link>
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import Form from "next/form";
-import { useInstanceContext } from "../../InstanceContext";
+import { useInstanceContext } from "../../../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { _InstanceType } from "@aws-sdk/client-ec2";
@@ -46,7 +46,7 @@ export default function HardwarePage() {
       return;
     }
 
-    await axios.put(`/api/instances/${instance?.name}/hardware`, {
+    await axios.put(`/api/instances/${instance?.name}/hardware/type`, {
       instanceId: instance?.id,
       instanceType: instanceSize,
       region: instance?.region,

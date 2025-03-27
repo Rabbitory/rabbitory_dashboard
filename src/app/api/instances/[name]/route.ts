@@ -61,6 +61,7 @@ export async function GET(
       // endpointUrl,
       port: 5672,
       state: instance.State?.Name,
+      EBSVolumeId: instance.BlockDeviceMappings?.[0].Ebs?.VolumeId || "N/A",
     };
 
     return NextResponse.json(formattedInstance);

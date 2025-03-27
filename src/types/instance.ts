@@ -12,4 +12,5 @@ export interface Instance {
   password: string;
   endpointUrl: string;
   state: string;
+  EBSVolumeId: string;
 }
