@@ -1,5 +1,5 @@
 import axios from "axios";
-import { storeToDynamoDB } from "../storeToDynamoDB";
+import { storeToDynamoDB } from "../dynamoDBUtils";
 import {
   waitUntilInstanceRunning,
   EC2Client,
