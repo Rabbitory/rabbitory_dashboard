@@ -22,7 +22,7 @@ export default async function InstanceLayout({
       <NavLayout name={name} />
 
       {/* Main content section */}
-      <section className="flex-1 max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+      <section className="flex-1 max-w-7xl mx-auto p-6 bg-gray-100 rounded-lg shadow-md">
         {children}
       </section>
     </div>
