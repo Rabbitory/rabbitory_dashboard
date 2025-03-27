@@ -4,6 +4,7 @@ import Form from "next/form";
 import { useInstanceContext } from "../../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { _InstanceType } from "@aws-sdk/client-ec2";
 
 type InstanceTypes = Record<string, string[]>;
 
@@ -37,7 +38,7 @@ export default function HardwarePage() {
 
   const handleEdit = async (formData: FormData) => {
     const instanceType = formData.get("instanceType") as string;
-    const instanceSize = formData.get("instanceSize") as string;
+    const instanceSize = formData.get("instanceSize") as _InstanceType;
 
     if (!instanceType || !instanceSize) {
       alert("Missing instance type or size");
@@ -45,21 +46,15 @@ export default function HardwarePage() {
       return;
     }
 
-    const response = await axios.put(
-      `/api/instances/${instance?.name}/hardware`,
-      {
-        instanceType,
-        instanceSize,
-        region: instance?.region,
-      },
-    );
+    await axios.put(`/api/instances/${instance?.name}/hardware`, {
+      instanceType: instanceSize,
+      region: instance?.region,
+    });
 
-    console.log(response);
+    // console.log(response);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>
