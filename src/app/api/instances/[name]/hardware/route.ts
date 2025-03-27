@@ -9,7 +9,7 @@ import {
 } from "@aws-sdk/client-ec2";
 import { NextRequest, NextResponse } from "next/server";
 
-interface Hardware {
+interface HardwareRequest {
   instanceId: string;
   instanceType: _InstanceType;
   region: string;
@@ -18,7 +18,7 @@ interface Hardware {
 export async function PUT(request: NextRequest) {
   try {
     const { instanceId, instanceType, region } =
-      (await request.json()) as Hardware;
+      (await request.json()) as HardwareRequest;
 
     if (!instanceId || !instanceType || !region) {
       return new NextResponse("Missing id, type or region", {
