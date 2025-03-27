@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { Instance } from "@/types/Instance";
+import { Instance } from "@/types/instance";
 
 interface InstanceContextType {
   instance: Instance | null;

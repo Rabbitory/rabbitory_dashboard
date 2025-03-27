@@ -5,7 +5,7 @@ import NavLayout from "@/app/components/NavLayout";
 import styles from "../instances/[name]/InstanceLayout.module.css";
 import { useInstanceContext } from "../instances/[name]/InstanceContext";
 import axios from "axios";
-import { Instance } from "@/types/Instance";
+import { Instance } from "@/types/instance";
 
 export function InstanceContent({
   children,
