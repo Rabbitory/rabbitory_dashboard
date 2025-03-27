@@ -1,5 +1,5 @@
 import axios from "axios";
-import { storeMetadataToDynamoDB } from "../storeMetadataToDynamoDB";
+import { storeToDynamoDB } from "../storeToDynamoDB";
 import {
   waitUntilInstanceRunning,
   EC2Client,
@@ -56,7 +56,7 @@ export async function pollRabbitMQServerStatus(
       ) {
         console.log("RabbitMQ is up; storing metadata in DynamoDB...");
         // TOTO:
-        await storeMetadataToDynamoDB(
+        await storeToDynamoDB(
           { instanceId, instanceName, username, password },
           region,
         );
