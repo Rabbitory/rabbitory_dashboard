@@ -1,10 +1,11 @@
 import axios from "axios";
-import { storeMetadataToDynamoDB } from "../storeMetadataToDynamoDB";
+import { storeToDynamoDB } from "../dynamoDBUtils";
 import {
   waitUntilInstanceRunning,
   EC2Client,
   DescribeInstancesCommand,
 } from "@aws-sdk/client-ec2";
+import encrypt from "../encrypt";
 
 export async function pollRabbitMQServerStatus(
   instanceId: string | undefined,
@@ -55,11 +56,17 @@ export async function pollRabbitMQServerStatus(
         instanceId !== undefined
       ) {
         console.log("RabbitMQ is up; storing metadata in DynamoDB...");
-        // TOTO:
-        await storeMetadataToDynamoDB(
-          { instanceId, instanceName, username, password },
-          region,
-        );
+
+        const encryptedUsername = await encrypt(username);
+        const encryptedPassword = await encrypt(password);
+
+        if (encryptedUsername && encryptedPassword) {
+          await storeToDynamoDB(
+            "RabbitoryInstancesMetadata",
+            { instanceId, instanceName, encryptedUsername, encryptedPassword },
+            region,
+          );
+        }
         return; // Stop polling once the server is up and metadata stored.
       }
     } catch (error: unknown) {
