@@ -113,6 +113,7 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
                       <input
                         type={item.type}
                         name={item.key}
+                        aria-label={item.key}
                         readOnly={item.readOnly}
                         value={configuration[item.key] ?? ""}
                         onChange={handleChange}
