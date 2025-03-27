@@ -3,6 +3,8 @@
 import Link from "next/link";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Dropdown from "../components/Dropdown";
 
 interface Instance {
   name: string;
@@ -10,6 +12,7 @@ interface Instance {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [instances, setInstances] = useState<Instance[]>([]);
 
   useEffect(() => {
@@ -39,16 +42,16 @@ export default function Home() {
       ) : (
         <ul className="space-y-4">
           {instances.map((instance) => (
-            <li
-              key={instance.name}
-              className="p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50"
-            >
-              <Link
-                href={`/instances/${instance.name}`}
-                className="text-xl text-blue-600 hover:underline"
-              >
+            <li key={instance.name} className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50">
+              <Link href={`/instances/${instance.name}`} className="text-xl text-blue-600 hover:underline">
                 {instance.name} | {instance.id}
               </Link>
+              <Dropdown
+                label="edit"
+                options={
+                  { delete: () => router.push(`/instances/${instance.name}/edit/delete`) }
+                }
+              />
             </li>
           ))}
         </ul>
