@@ -47,6 +47,7 @@ export default function HardwarePage() {
     }
 
     await axios.put(`/api/instances/${instance?.name}/hardware`, {
+      instanceId: instance?.id,
       instanceType: instanceSize,
       region: instance?.region,
     });
