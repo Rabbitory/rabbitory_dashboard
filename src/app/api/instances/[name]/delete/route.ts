@@ -2,6 +2,7 @@ import { EC2Client } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "@/utils/AWS/EC2/fetchInstace";
 import { NextResponse } from "next/server";
 import { deleteBroker } from "@/utils/AWS/EC2/deleteBrokerInstance";
+import { deleteFromDynamoDB } from "@/utils/dynamoDBUtils";
 
 const ec2Client = new EC2Client({ region: process.env.REGION });
 
@@ -18,7 +19,11 @@ export async function POST(
       { status: 404 }
     );
   }
+  console.log("Delete broker...")
   await deleteBroker(instanceId, ec2Client);
+  console.log("Delete from dynamodb...")
+  console.log("instanceId:", instanceId)
+  await deleteFromDynamoDB("RabbitoryInstancesMetadata", { instanceId: { S: instanceId } });
   return NextResponse.json(
     { message: `Successfully deleted instance: ${name}` },
     { status: 200 }

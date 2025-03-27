@@ -30,15 +30,15 @@ export const storeToDynamoDB = async (
 
 export const deleteFromDynamoDB = async (
   tableName: string,
-  key: string,
-  region: string
+  partitionKey: { [key: string]: { S: string } },
 ) => {
-  const client = new DynamoDBClient({ region: region })
+  const client = new DynamoDBClient({ region: process.env.REGION })
 
   try {
+    console.log("Attempting to delete from DynamoDB...")
     const command = new DeleteItemCommand({
       TableName: tableName,
-      Key: { PK: { S: key } }
+      Key: partitionKey
     })
 
     const response = await client.send(command);
