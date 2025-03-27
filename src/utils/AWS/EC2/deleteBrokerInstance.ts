@@ -9,15 +9,15 @@ export const deleteBroker = async (id: string, client: EC2Client) => {
   try {
     const command = new TerminateInstancesCommand(terminateParams);
     await client.send(command);
-    console.log(`Successfully deleted instance: ${name}`);
+    console.log(`Successfully deleted instance: ${id}`);
     return NextResponse.json(
-      { message: `Successfully deleted instance: ${name}` },
+      { message: `Successfully deleted instance: ${id}` },
       { status: 200 }
     )
   } catch (err) {
-    console.log("Error deleting instance '${name}':", err);
+    console.log("Error deleting instance '${id}':", err);
     return NextResponse.json(
-      { message: "Error deleting instance '${name}:'", err },
+      { message: "Error deleting instance '${id}:'", err },
       { status: 500 }
     )
   }

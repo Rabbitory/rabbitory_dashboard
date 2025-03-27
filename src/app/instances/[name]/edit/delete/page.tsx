@@ -9,7 +9,6 @@ import {
 } from 'react';
 import { useRouter } from "next/navigation";
 import axios from 'axios';
-import Instance from '@/types/instance';
 
 interface Params {
   name: string;
@@ -35,10 +34,10 @@ export default function DeletePage({ params }: DeletePageParams) {
     console.log(inputText);
   }
 
-  const handleDelete = (e: FormEvent<HTMLFormElement>) => {
+  const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      axios.post(`/api/instances/${name}/delete`);
+      await axios.post(`/api/instances/${name}/delete`);
       router.push(`/`);
     } catch (err) {
       console.error("Error deleting instance:", err);

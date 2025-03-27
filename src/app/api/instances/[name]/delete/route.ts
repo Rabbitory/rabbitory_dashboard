@@ -18,5 +18,9 @@ export async function POST(
       { status: 404 }
     );
   }
-  deleteBroker(instanceId, ec2Client);
+  await deleteBroker(instanceId, ec2Client);
+  return NextResponse.json(
+    { message: `Successfully deleted instance: ${name}` },
+    { status: 200 }
+  )
 }
