@@ -1,6 +1,6 @@
 import { _InstanceType } from "@aws-sdk/client-ec2";
 
-export default interface Instance {
+export interface Instance {
   name: string;
   id: string;
   type: _InstanceType;
@@ -13,4 +13,3 @@ export default interface Instance {
   endpointUrl: string;
   state: string;
 }
-
