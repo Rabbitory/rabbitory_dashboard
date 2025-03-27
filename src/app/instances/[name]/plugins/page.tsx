@@ -4,24 +4,21 @@ import axios from "axios";
 import styles from "./PluginsPage.module.css";
 import { useEffect, useState } from "react";
 import { plugins, Plugin } from "@/types/plugins";
+import { useInstanceContext } from "../InstanceContext";
 
-interface Params {
-  name: string;
-}
-interface PluginsPageProps {
-  params: Promise<Params>;
-}
-
-export default function PluginsPage({ params }: PluginsPageProps) {
-  const { name } = React.use(params);
+export default function PluginsPage() {
   const [pluginList] = useState<Plugin[]>(plugins);
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+  const { instance } = useInstanceContext();
+
   useEffect(() => {
     const fetchPlugins = async () => {
       setIsFetching(true);
       try {
-        const response = await axios.get(`/api/instances/${name}/plugins`);
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/plugins`,
+        );
         console.log(response.data);
         setEnabledPlugins(response.data);
       } catch (error) {
@@ -32,7 +29,7 @@ export default function PluginsPage({ params }: PluginsPageProps) {
     };
 
     fetchPlugins();
-  }, [name]);
+  }, [instance?.name]);
   return (
     <>
       {isFetching ? (
