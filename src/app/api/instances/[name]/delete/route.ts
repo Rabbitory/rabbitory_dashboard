@@ -19,10 +19,7 @@ export async function POST(
       { status: 404 }
     );
   }
-  console.log("Delete broker...")
   await deleteBroker(instanceId, ec2Client);
-  console.log("Delete from dynamodb...")
-  console.log("instanceId:", instanceId)
   await deleteFromDynamoDB("RabbitoryInstancesMetadata", { instanceId: { S: instanceId } });
   return NextResponse.json(
     { message: `Successfully deleted instance: ${name}` },
