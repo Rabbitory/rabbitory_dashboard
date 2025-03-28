@@ -48,12 +48,14 @@ export default function DeletePage({ params }: DeletePageParams) {
     <>
       <h1>{name} </h1>
       <p><strong>By submitting the following form, this instance will be permanently deleted</strong></p >
-      <form action="" method="get" onSubmit={(e) => handleDelete(e)
+      <form action="" onSubmit={(e) => handleDelete(e)
       }>
         <label htmlFor='instance' > Type the instance name: </label>
-        < input type="text" name="instance" onChange={(e) => handleChange(e)} />
-        < button type="submit" disabled={!validInput}> Delete </button>
-        < button type="button" onClick={() => router.push(`/instances/${name}`)}> Cancel </button>
+        <input type="text" name="instance" onChange={(e) => handleChange(e)} />
+        <button type="submit" disabled={!validInput}> Delete </button>
+        <button type="button" onClick={() => router.push(`/instances/${name}`)}>
+          Cancel
+        </button>
       </form >
     </>
   )
