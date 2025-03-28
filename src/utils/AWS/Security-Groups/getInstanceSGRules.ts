@@ -38,7 +38,6 @@ export async function getInstanceSGRules(instanceName: string, region: string): 
 
     return securityGroup;
   } catch (error) {
-    console.error("Error retrieving security group rules:", error);
     throw error;
   }
 }
