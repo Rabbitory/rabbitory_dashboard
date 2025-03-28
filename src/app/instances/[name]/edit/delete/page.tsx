@@ -47,7 +47,7 @@ export default function DeletePage({ params }: DeletePageParams) {
   return (
     <>
       <h1>{name} </h1>
-      < p > <strong>By submitting the following form, this instance will be permanently deleted < /strong></p >
+      <p><strong>By submitting the following form, this instance will be permanently deleted</strong></p >
       <form action="" onSubmit={(e) => handleDelete(e)
       }>
         <label htmlFor='instance' > Type the instance name: </label>
