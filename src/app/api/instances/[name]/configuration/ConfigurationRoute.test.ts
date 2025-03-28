@@ -38,7 +38,7 @@ it("POST returns configuration after a successful update", async () => {
   const newConfig = { heartbeat: "120", channel_max: "200" };
 
   const dummyInstance = { InstanceId: "i-123456", PublicDnsName: "test.dns" };
-  mockedFetchInstance.mockResolvedValueOnce(dummyInstance as any);
+  mockedFetchInstance.mockResolvedValueOnce(dummyInstance);
 
   const dummyOutput =
     "some output__CONFIG_START__heartbeat = 120\nchannel_max = 200\n";
