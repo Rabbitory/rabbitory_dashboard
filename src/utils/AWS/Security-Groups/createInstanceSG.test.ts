@@ -6,18 +6,12 @@ import {
 } from "@aws-sdk/client-ec2";
 import { createInstanceSG, getVpcId, initializeInstanceSG, authorizeIngressTraffic, generateUniqueSGName } from "./createInstanceSG";
 
-// Mock EC2Client and its send method
+
 jest.mock("@aws-sdk/client-ec2");
-
 const mockSend = jest.fn();
-(EC2Client as jest.Mock).mockImplementation(() => ({
-  send: mockSend,
-}));
+(EC2Client as jest.Mock).mockImplementation(() => ({ send: mockSend }));
 
-
-beforeEach(() => {
-  mockSend.mockClear();
-});
+beforeEach(() => mockSend.mockClear());
 
 // ============================
 // Unit Tests for Internal Functions
