@@ -94,6 +94,7 @@ export default function PluginsPage({ params }: PluginsPageProps) {
                     <input
                       type="checkbox"
                       checked={isEnabled}
+                      aria-label={plugin.name}
                       // When toggled, the form is immediately submitted.
                       onChange={(e) => e.currentTarget.form?.requestSubmit()}
                       className="sr-only peer"
