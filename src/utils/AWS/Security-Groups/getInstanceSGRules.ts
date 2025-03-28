@@ -42,14 +42,3 @@ export async function getInstanceSGRules(instanceName: string, region: string): 
     throw error;
   }
 }
-
-// Example usage (this can be removed in your actual code)
-const instanceName = "brown-curly-dog"; // Replace with your instance name
-const region = "us-east-1"; // Replace with your desired region
-getInstanceSGRules(instanceName, region)
-  .then((securityGroup) => {
-    console.log("Security Group for the instance:", securityGroup);
-  })
-  .catch((error) => {
-    console.error("Error:", error);
-  });
