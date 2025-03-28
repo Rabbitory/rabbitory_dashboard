@@ -1,9 +1,12 @@
 import { EC2Client } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "../EC2/fetchInstance";
 
-export async function getInstanceAvailabilityZone(instanceName: string, ec2Client: EC2Client): Promise<string | null> {
+export async function getInstanceAvailabilityZone(instanceName: string): Promise<string> {
+  // NEEDS FIXED - WAITING FOR UPDATED REGION PASSING
+  const client = new EC2Client({region: process.env.REGION || 'us-east-1'});
+
   try {
-    const instance = await fetchInstance(instanceName, ec2Client);
+    const instance = await fetchInstance(instanceName, client);
 
     if (!instance) {
       throw new Error(`Instance with name '${instanceName}' not found.`);
