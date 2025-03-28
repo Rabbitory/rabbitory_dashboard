@@ -1,5 +1,5 @@
 import { EC2Client, DescribeSecurityGroupsCommand, SecurityGroup as AwsSecurityGroup } from "@aws-sdk/client-ec2";
-import { fetchInstance } from "../EC2/fetchInstace";
+import { fetchInstance } from "../EC2/fetchInstance";
 
 interface SecurityGroup {
   GroupId?: string;
