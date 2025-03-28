@@ -11,12 +11,12 @@ export default async function InstanceLayout({
   children,
   params,
 }: InstanceLayoutProps) {
-  const instance = await params;
+  const { name } = await params;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <InstanceProvider>
-        <InstanceContent name={instance?.name}>{children}</InstanceContent>
+        <InstanceContent name={name}>{children}</InstanceContent>
       </InstanceProvider>
     </div>
   );
