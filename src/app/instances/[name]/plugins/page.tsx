@@ -3,24 +3,21 @@ import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { plugins, Plugin } from "@/types/plugins";
+import { useInstanceContext } from "../InstanceContext";
 
-interface Params {
-  name: string;
-}
-interface PluginsPageProps {
-  params: Promise<Params>;
-}
-
-export default function PluginsPage({ params }: PluginsPageProps) {
-  const { name } = React.use(params);
+export default function PluginsPage() {
+  const { instance } = useInstanceContext();
   const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     const fetchPlugins = async () => {
       setIsFetching(true);
       try {
-        const response = await axios.get(`/api/instances/${name}/plugins`);
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/plugins`,
+        );
         console.log(response.data);
         setEnabledPlugins(response.data);
       } catch (error) {
@@ -31,11 +28,11 @@ export default function PluginsPage({ params }: PluginsPageProps) {
     };
 
     fetchPlugins();
-  }, [name]);
+  }, [instance?.name]);
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>,
-    pluginName: string
+    pluginName: string,
   ) => {
     e.preventDefault();
     const currentlyEnabled = enabledPlugins.includes(pluginName);
@@ -44,12 +41,12 @@ export default function PluginsPage({ params }: PluginsPageProps) {
     //update the state immediately,
     // we do this so that the toggle button updates immediately.
     setEnabledPlugins((prev) =>
-      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName)
+      newValue ? [...prev, pluginName] : prev.filter((p) => p !== pluginName),
     );
     setIsSaving(true);
 
     try {
-      await axios.post(`/api/instances/${name}/plugins`, {
+      await axios.post(`/api/instances/${instance?.name}/plugins`, {
         name: pluginName,
         enabled: newValue,
       });
@@ -60,7 +57,7 @@ export default function PluginsPage({ params }: PluginsPageProps) {
       setEnabledPlugins((prev) =>
         currentlyEnabled
           ? [...prev, pluginName]
-          : prev.filter((p) => p !== pluginName)
+          : prev.filter((p) => p !== pluginName),
       );
     } finally {
       setIsSaving(false);
@@ -100,10 +97,10 @@ export default function PluginsPage({ params }: PluginsPageProps) {
                       className="sr-only peer"
                     />
                     <div
-                      className="w-11 h-6 bg-gray-200 rounded-full 
+                      className="w-11 h-6 bg-gray-200 rounded-full
              peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
              dark:bg-gray-700
-             peer-checked:bg-green-500 
+             peer-checked:bg-green-500
              peer-checked:after:translate-x-full peer-checked:after:border-white
              after:content-[''] after:absolute after:top-0.5 after:left-[2px]
              after:bg-white after:border-gray-300 after:border after:rounded-full

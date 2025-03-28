@@ -2,24 +2,17 @@
 import * as React from "react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useInstanceContext } from "../InstanceContext";
 import { configItems } from "@/types/configuration";
 import { validateConfiguration } from "@/utils/validateConfig";
 import Link from "next/link";
-
-interface Params {
-  name: string;
-}
-
-interface ConfigurationPageProps {
-  params: Promise<Params>;
-}
 
 interface Configuration {
   [key: string]: string;
 }
 
-export default function ConfigurationPage({ params }: ConfigurationPageProps) {
-  const { name } = React.use(params);
+export default function ConfigurationPage() {
+  const { instance } = useInstanceContext();
   const [configuration, setConfiguration] = useState<Configuration>({});
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -28,8 +21,8 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
     const fetchConfiguration = async () => {
       setIsFetching(true);
       try {
-        const response = await axios.get<Configuration>(
-          `/api/instances/${name}/configuration`
+        const response = await axios.get(
+          `/api/instances/${instance?.name}/configuration`,
         );
         console.log(response.data);
         setConfiguration(response.data);
@@ -40,10 +33,10 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
       }
     };
     fetchConfiguration();
-  }, [name]);
+  }, [instance?.name]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setConfiguration((prev) => ({ ...prev, [name]: value }));
@@ -59,10 +52,10 @@ export default function ConfigurationPage({ params }: ConfigurationPageProps) {
     setIsSaving(true);
     try {
       const response = await axios.post(
-        `/api/instances/${name}/configuration`,
+        `/api/instances/${instance?.name}/configuration`,
         {
           configuration,
-        }
+        },
       );
       //console.log(response.data);
       setConfiguration(response.data);
