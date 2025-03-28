@@ -7,7 +7,7 @@ import axios from "axios";
 import { Suspense } from "react";
 
 jest.mock("axios");
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedAxios = jest.mocked(axios);
 
 const params = Promise.resolve({ name: "test-instance" });
 
