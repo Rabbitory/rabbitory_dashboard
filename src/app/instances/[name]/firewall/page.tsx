@@ -66,14 +66,20 @@ export default function FirewallPage({ params }: FirewallPageProps) {
     setRules(updatedRules);
   };
 
-  const handleOtherPortsChange = (index: number, value: string) => {
+  const handleOtherPortsChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedRules = [...rules];
-    updatedRules[index].otherPorts = value
-      ? value.split(",").map((port) => parseInt(port.trim(), 10))
-      : [];
+    const parsePorts = (portsString: string) => {
+      return portsString
+        .split(",")
+        .map((port) => parseInt(port.trim(), 10))
+        .filter((port) => !isNaN(port));
+    };
+    const value = event.target.value;
+    const parsedPorts = value ? parsePorts(value) : [];
+    updatedRules[index].otherPorts = parsedPorts;
     setRules(updatedRules);
   };
-
+  
   const addRule = () => {
     setRules([
       ...rules,
@@ -82,7 +88,7 @@ export default function FirewallPage({ params }: FirewallPageProps) {
   };
 
   const removeRule = (index: number) => {
-    setRules(rules.filter((_, i) => i !== index));
+    setRules(rules.filter((_rule, i) => i !== index));
   };
 
   const handleSave = async () => {
@@ -104,7 +110,7 @@ export default function FirewallPage({ params }: FirewallPageProps) {
       {errors.length > 0 && (
         <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
           {errors.map((error, i) => (
-            <p key={i}>⚠️ {error}</p>
+            <p key={i}>Error: {error}</p>
           ))}
         </div>
       )}
@@ -173,13 +179,13 @@ export default function FirewallPage({ params }: FirewallPageProps) {
                       type="text"
                       placeholder="5671, 5672"
                       value={rule.otherPorts.join(", ")}
-                      onChange={(e) => handleInputChange(index, "otherPorts", e.target.value.split(",").map(Number))}
+                      onChange={(e) => handleOtherPortsChange(index, e)}
                       className="w-full h-9 text-sm p-2 border rounded"
                     />
   
                     {/* Drop Button */}
                     <button 
-                      onClick={() => setRules(rules.filter((_, i) => i !== index))} 
+                      onClick={() => removeRule(index)} 
                       className="bg-gray-300 text-gray-800 h-9 px-3 rounded hover:opacity-80 cursor-pointer"
                     >
                       Drop
@@ -194,12 +200,7 @@ export default function FirewallPage({ params }: FirewallPageProps) {
         {/* Add Additional Rule Button */}
         <div className="flex justify-between mt-4">
           <button
-            onClick={() =>
-              setRules([
-                ...rules,
-                { description: "", sourceIp: "", commonPorts: [], otherPorts: [] },
-              ])
-            }
+            onClick={addRule}
             className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:opacity-80 cursor-pointer"
           >
             Add Additional Rule
