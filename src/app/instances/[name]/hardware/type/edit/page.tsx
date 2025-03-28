@@ -5,10 +5,12 @@ import { useInstanceContext } from "../../../InstanceContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { _InstanceType } from "@aws-sdk/client-ec2";
+import { useRouter } from "next/navigation";
 
 type InstanceTypes = Record<string, string[]>;
 
 export default function HardwarePage() {
+  const router = useRouter();
   const [instanceTypes, setInstanceTypes] = useState<InstanceTypes>({});
   const { instance } = useInstanceContext();
   const [editing, setEditing] = useState(false);
@@ -52,7 +54,7 @@ export default function HardwarePage() {
       region: instance?.region,
     });
 
-    // console.log(response);
+    router.push(`/instances/${instance?.name}`);
   };
 
   if (loading) return <div>Loading...</div>;
