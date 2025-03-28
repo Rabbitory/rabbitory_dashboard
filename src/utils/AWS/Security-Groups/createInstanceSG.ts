@@ -7,9 +7,7 @@ import {
   IpPermission
 } from "@aws-sdk/client-ec2";
 
-// const instanceName = "PURPLE_HAPPY_SHEEP";
-
-const getVpcId = async (client: EC2Client): Promise<string> => {
+export const getVpcId = async (client: EC2Client): Promise<string> => {
   try {
     const command = new DescribeVpcsCommand({});
     const response = await client.send(command);
@@ -27,7 +25,6 @@ const getVpcId = async (client: EC2Client): Promise<string> => {
       throw new Error("No VPC ID found in the first available VPC.");
     } else {
       // Fallback: Return the first available VPC
-      console.warn("No default VPC found, using the first available VPC.");
       return response.Vpcs[0].VpcId;
     }
   } catch (error) {
@@ -35,11 +32,11 @@ const getVpcId = async (client: EC2Client): Promise<string> => {
   }
 };
 
-const generateUniqueSGName = (instanceName: string): string => {
+export const generateUniqueSGName = (instanceName: string): string => {
   return `rabbitmq-sg-${instanceName.replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase()}`;
 };
 
-const initializeInstanceSG = async (vpcId: string, client: EC2Client, instanceName: string): Promise<string> => {
+export const initializeInstanceSG = async (vpcId: string, client: EC2Client, instanceName: string): Promise<string> => {
   try {
     const securityGroupName = generateUniqueSGName(instanceName);
     const description = `Security group for RMQ EC2 Instance: ${instanceName}`;
@@ -58,7 +55,7 @@ const initializeInstanceSG = async (vpcId: string, client: EC2Client, instanceNa
   }
 };
 
-const authorizeIngressTraffic = async (
+export const authorizeIngressTraffic = async (
   securityGroupId: string,
   client: EC2Client
 ): Promise<void> => {
