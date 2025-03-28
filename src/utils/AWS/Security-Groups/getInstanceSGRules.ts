@@ -1,39 +1,55 @@
-import { EC2Client, DescribeSecurityGroupsCommand } from "@aws-sdk/client-ec2";
-import { fetchInstance } from "../EC2/fetchInstace"; // your existing fetchInstance function
-import { NextResponse } from "next/server";
+import { EC2Client, DescribeSecurityGroupsCommand, SecurityGroup as AwsSecurityGroup } from "@aws-sdk/client-ec2";
+import { fetchInstance } from "../EC2/fetchInstace"; // Adjust the import as needed
 
-// Example function to get firewall rules for an EC2 instance
-export async function getInstanceFirewallRules(instanceName: string) {
-  const ec2Client = new EC2Client({ region: "us-east-1" }); // specify your region here
+interface SecurityGroup {
+  GroupId?: string;
+  GroupName?: string;
+  Description?: string;
+  VpcId?: string;
+  IpPermissions?: AwsSecurityGroup['IpPermissions'];
+  IpPermissionsEgress?: AwsSecurityGroup['IpPermissionsEgress'];
+  Tags?: AwsSecurityGroup['Tags'];
+}
 
-      const instance = await fetchInstance(instanceName, ec2Client);
-  
-      if (!instance) {
-        return NextResponse.json({ message: "Instance not found" }, { status: 404 });
-      }
-
-  // Assume instance has a security group ID, and we fetch its inbound rules
-  const securityGroupId = instance.SecurityGroups?.[0].GroupId;
-
-  if (!securityGroupId) {
-    throw new Error("Instance has no associated security group.");
-  }
-
-  const describeParams = {
-    GroupIds: [securityGroupId],
-  };
+export async function getInstanceSGRules(instanceName: string, region: string): Promise<SecurityGroup | null> {
+  const ec2Client = new EC2Client({ region });
 
   try {
-    const command = new DescribeSecurityGroupsCommand(describeParams);
-    const response = await ec2Client.send(command);
+    const instance = await fetchInstance(instanceName, ec2Client);
 
-    if (response.SecurityGroups && response.SecurityGroups.length > 0) {
-      return response.SecurityGroups[0].IpPermissions; // This returns the firewall rules for the security group
+    if (!instance || !instance.SecurityGroups || instance.SecurityGroups.length === 0) {
+      throw new Error("No security groups found for the instance.");
     }
 
-    return [];
+    const securityGroupIds = instance.SecurityGroups
+      .map((sg) => sg.GroupId)
+      .filter((id): id is string => id !== undefined); // Ensure that we only have strings
+
+    const describeSecurityGroupsCommand = new DescribeSecurityGroupsCommand({
+      GroupIds: securityGroupIds,
+    });
+
+    const securityGroupResponse = await ec2Client.send(describeSecurityGroupsCommand);
+    const securityGroup = securityGroupResponse.SecurityGroups?.[0];
+
+    if (!securityGroup) {
+      throw new Error("No security group details found.");
+    }
+
+    return securityGroup;
   } catch (error) {
-    console.error("Error fetching firewall rules:", error);
-    throw new Error("Failed to fetch firewall rules.");
+    console.error("Error retrieving security group rules:", error);
+    throw error;
   }
 }
+
+// Example usage (this can be removed in your actual code)
+const instanceName = "brown-curly-dog"; // Replace with your instance name
+const region = "us-east-1"; // Replace with your desired region
+getInstanceSGRules(instanceName, region)
+  .then((securityGroup) => {
+    console.log("Security Group for the instance:", securityGroup);
+  })
+  .catch((error) => {
+    console.error("Error:", error);
+  });
