@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import React from "react";
+import { FirewallRule } from "@/types/firewall";
 
 
 interface Params {
@@ -12,37 +13,21 @@ interface FirewallPageProps {
   params: Promise<Params>;
 }
 
-interface FirewallRule {
-  description: string;
-  sourceIp: string;
-  commonPorts: number[];
-  customPorts: string;
-}
+const COMMON_PORTS = ["AMQP", "MQTT", "STOMPS", "AMQPS", "MQTTS", "STREAM", "HTTPS", "STOMP", "STREAM_SSL"];
 
-const commonPorts = [
-  { name: "AMQP", port: 5672 },
-  { name: "HTTPS", port: 443 },
-  { name: "AMQPS", port: 5671 },
-];
 
 export default function FirewallPage({ params }: FirewallPageProps) {
   const { name } = React.use(params);
-  const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [rules, setRules] = useState<FirewallRule[]>([]);
-  const [newRule, setNewRule] = useState<FirewallRule>({
-    description: "",
-    sourceIp: "",
-    commonPorts: [],
-    customPorts: "",
-  });
 
   useEffect(() => {
     async function fetchRules() {
       setIsFetching(true);
       try {
         const { data } = await axios.get(`/api/instances/${name}/firewall`);
-        console.log(data);
+        setRules(data);
       } catch (error) {
         console.error("Error fetching rules:", error);
       } finally {
@@ -52,82 +37,129 @@ export default function FirewallPage({ params }: FirewallPageProps) {
     fetchRules();
   }, [name]);
 
+  const handleInputChange = (index: number, field: keyof FirewallRule, value: any) => {
+    const updatedRules = [...rules];
+    (updatedRules[index] as any)[field] = value;
+    setRules(updatedRules);
+  };
+
+  const handlePortToggle = (index: number, port: string) => {
+    const updatedRules = [...rules];
+    const rule = updatedRules[index];
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    rule.commonPorts.includes(port)
+      ? (rule.commonPorts = rule.commonPorts.filter((p) => p !== port))
+      : rule.commonPorts.push(port);
+    setRules(updatedRules);
+  };
+
+  const handleOtherPortsChange = (index: number, value: string) => {
+    const updatedRules = [...rules];
+    updatedRules[index].otherPorts = value
+      ? value.split(",").map((port) => parseInt(port.trim(), 10))
+      : [];
+    setRules(updatedRules);
+  };
+
+  const addRule = () => {
+    setRules([
+      ...rules,
+      { description: "", sourceIp: "", commonPorts: [], otherPorts: [] },
+    ]);
+  };
+
+  const removeRule = (index: number) => {
+    setRules(rules.filter((_, i) => i !== index));
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await axios.post(`/api/instances/${name}/firewall`, { rules });
+      alert("Firewall rules updated successfully!");
+    } catch (error) {
+      console.error("Error saving rules:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <div className="">
-      {/* Current Firewall Rules Card */}
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-        <h2 className="text-3xl font-semibold text-gray-900 mb-6 text-center">Firewall Settings</h2>
-        <h3 className="text-lg font-semibold mb-2">Current Firewall Rules</h3>
-        {isFetching ? (
-          <p className="text-gray-600">Loading...</p>
-        ) : rules.length === 0 ? (
-          <p className="text-gray-600">No firewall rules applied.</p>
-        ) : (
-          rules.map((rule, index) => (
-            <div key={index} className="p-2 border-b">
-              <p><strong>{rule.description}</strong></p>
-              <p>Source IP: {rule.sourceIp}</p>
-              <p>Ports: {rule.commonPorts.join(", ")} {rule.customPorts && `, ${rule.customPorts}`}</p>
-            </div>
-          ))
-        )}
-      </div>
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+      <h2 className="text-3xl font-semibold text-gray-900 mb-6 text-center">Firewall Settings</h2>
 
-      {/* Add New Firewall Rule Card */}
-      {/* <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
-        <h3 className="text-lg font-semibold mb-2">Add New Firewall Rule</h3>
-        <input
-          type="text"
-          placeholder="Description"
-          value={newRule.description}
-          onChange={(e) => setNewRule({ ...newRule, description: e.target.value })}
-          className="border p-2 rounded-md w-full mb-2"
-        />
-        <input
-          type="text"
-          placeholder="Source IP"
-          value={newRule.sourceIp}
-          onChange={(e) => setNewRule({ ...newRule, sourceIp: e.target.value })}
-          className="border p-2 rounded-md w-full mb-2"
-        />
-        <div className="mb-2">
-          <h4 className="font-medium">Common Ports</h4>
-          {commonPorts.map((port) => (
-            <div key={port.port} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={newRule.commonPorts.includes(port.port)}
-                onChange={() => handleCheckboxChange(port.port)}
-                className="mr-2"
-              />
-              <label>{port.name} ({port.port})</label>
-            </div>
-          ))}
-        </div>
-        <input
-          type="text"
-          placeholder="Custom Ports (comma separated)"
-          value={newRule.customPorts}
-          onChange={(e) => setNewRule({ ...newRule, customPorts: e.target.value })}
-          className="border p-2 rounded-md w-full mb-2"
-        />
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={handleClearForm}
-            className="w-1/4 py-2 bg-gray-300 text-gray-700 rounded-full hover:bg-gray-400 text-xl"
-          >
-            Clear
-          </button>
-          <button
-            onClick={handleAddRule}
-            className="w-1/4 py-2 bg-green-400 text-white rounded-full hover:bg-green-300 focus:ring-2 focus:ring-green-500 text-xl"
-            disabled={isSaving}
-          >
-            {isSaving ? "Saving..." : "Add Rule"}
-          </button>
-        </div>
-      </div> */}
+      {isFetching ? (
+        <p className="text-gray-600">Loading...</p>
+      ) : (
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div className="space-y-4">
+            {rules.map((rule, index) => (
+              <div key={index} className="p-4 border rounded-md">
+                <div className="grid grid-cols-12 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Description"
+                    value={rule.description}
+                    onChange={(e) => handleInputChange(index, "description", e.target.value)}
+                    className="col-span-3 p-2 border rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Source IP"
+                    value={rule.sourceIp}
+                    onChange={(e) => handleInputChange(index, "sourceIp", e.target.value)}
+                    className="col-span-3 p-2 border rounded"
+                  />
+                  <div className="col-span-4 flex flex-wrap gap-2">
+                    {COMMON_PORTS.map((port) => (
+                      <label key={port} className="flex items-center space-x-1">
+                        <input
+                          type="checkbox"
+                          checked={rule.commonPorts.includes(port)}
+                          onChange={() => handlePortToggle(index, port)}
+                        />
+                        <span className="text-sm">{port}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Other Ports (comma-separated)"
+                    value={rule.otherPorts.join(", ")}
+                    onChange={(e) => handleOtherPortsChange(index, e.target.value)}
+                    className="col-span-2 p-2 border rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeRule(index)}
+                    className="col-span-1 bg-red-500 text-white px-3 py-1 rounded"
+                  >
+                    Drop
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex justify-between">
+            <button
+              type="button"
+              onClick={addRule}
+              className="bg-gray-200 px-4 py-2 rounded"
+            >
+              + Add additional row
+            </button>
+            <button
+              type="button"
+              onClick={handleSave}
+              className={`bg-green-500 text-white px-4 py-2 rounded ${isSaving ? "opacity-50" : ""}`}
+              disabled={isSaving}
+            >
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

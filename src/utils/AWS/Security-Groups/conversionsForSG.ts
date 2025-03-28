@@ -15,7 +15,6 @@ const PORT_SERVICE_MAP: Record<number, string> = {
   5671: "AMQPS",
 };
 
-
 export function convertIpPermissionsToSecurityGroupRules(ipPermissions: IpPermission[]): SecurityGroupRule[] {
   if (!ipPermissions) {
     throw new Error("IpPermissions is undefined or empty.");
