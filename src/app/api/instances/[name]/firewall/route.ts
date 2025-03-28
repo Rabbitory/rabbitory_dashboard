@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { getInstanceSGRules } from "@/utils/AWS/Security-Groups/getInstanceSGRules";
 import { getInstanceAvailabilityZone } from "@/utils/AWS/EC2/getInstanceAvailabilityZone";
-
-// export async function GET(_request: Request, { params }: { params: Promise<{name: string}>}) {
-//   const { name } = await params;
-//   console.log(name);
-// }
+import { convertToSecurityGroupRules, convertToUIFirewallRules } from "@/utils/AWS/Security-Groups/conversionsForSG";
 
 export async function GET( _request: Request, { params }: { params: Promise<{ name: string }> }) {
   const { name } = await params;
@@ -15,12 +11,14 @@ export async function GET( _request: Request, { params }: { params: Promise<{ na
     const region = await getInstanceAvailabilityZone(instanceName); // FIX - IF REGION PASSING CHANGES
     const instanceSGRules = await getInstanceSGRules(instanceName, region);
 
-    console.log(instanceSGRules);
-    const firewallDetails = {
-      description: instanceSGRules?.Description,
-      ipPermissions: instanceSGRules?.IpPermissions,
-      
-    }
+    /* 
+    We want to send the frontend exactly what it needs, nothing more or less
+    Need:
+      - description
+      - 
+    */
+
+    const uiFirewallRules: FirewallRule[] = convertToUIFirewallRules(instanceSGRules?.IpPermissions)
 
     return NextResponse.json(instanceSGRules);
   } catch (error) {
