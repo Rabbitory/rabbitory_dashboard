@@ -2,8 +2,6 @@ import { EC2Client, DescribeSecurityGroupsCommand } from "@aws-sdk/client-ec2";
 import { fetchInstance } from "../EC2/fetchInstace"; // your existing fetchInstance function
 import { NextResponse } from "next/server";
 
-const ec2Client = new EC2Client({ region: "us-east-1" }); // specify your region here
-
 // Example function to get firewall rules for an EC2 instance
 export async function getInstanceFirewallRules(instanceName: string) {
   const ec2Client = new EC2Client({ region: "us-east-1" }); // specify your region here
