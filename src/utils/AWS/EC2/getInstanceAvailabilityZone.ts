@@ -18,6 +18,10 @@ export async function getInstanceAvailabilityZone(instanceName: string): Promise
       throw new Error(`Availability zone for instance '${instanceName}' is not available.`);
     }
 
+    if (/[a-zA-Z]/.test(availabilityZone[availabilityZone.length - 1])) {
+      return availabilityZone.slice(0, -1);
+    }
+    
     return availabilityZone;
   } catch (error) {
     console.error(`Error retrieving availability zone for instance '${instanceName}':`, error);
