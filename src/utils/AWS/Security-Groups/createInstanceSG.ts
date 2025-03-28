@@ -7,7 +7,7 @@ import {
   IpPermission
 } from "@aws-sdk/client-ec2";
 
-const instanceName = "PURPLE_HAPPY_SHEEP";
+// const instanceName = "PURPLE_HAPPY_SHEEP";
 
 const getVpcId = async (client: EC2Client): Promise<string> => {
   try {
@@ -36,10 +36,10 @@ const getVpcId = async (client: EC2Client): Promise<string> => {
 };
 
 const generateUniqueSGName = (instanceName: string): string => {
-  return `RMQInstanceSG-${instanceName.replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase()}`;
+  return `rabbitmq-sg-${instanceName.replace(/[^a-zA-Z0-9-]/g, "-").toLowerCase()}`;
 };
 
-const initializeInstanceSG = async (vpcId: string, client: EC2Client): Promise<string> => {
+const initializeInstanceSG = async (vpcId: string, client: EC2Client, instanceName: string): Promise<string> => {
   try {
     const securityGroupName = generateUniqueSGName(instanceName);
     const description = `Security group for RMQ EC2 Instance: ${instanceName}`;
@@ -63,7 +63,38 @@ const authorizeIngressTraffic = async (
   client: EC2Client
 ): Promise<void> => {
   try {
-    const ingressRules: IpPermission[] = [];
+    const ingressRules: IpPermission[] = [
+      {
+        IpProtocol: "tcp",
+        FromPort: 5672,
+        ToPort: 5672,
+        IpRanges: [{ CidrIp: "0.0.0.0/0" }],
+      },
+      {
+        IpProtocol: "tcp",
+        FromPort: 15672,
+        ToPort: 15672,
+        IpRanges: [{ CidrIp: "0.0.0.0/0" }],
+      },
+      {
+        IpProtocol: "tcp",
+        FromPort: 80,
+        ToPort: 80,
+        IpRanges: [{ CidrIp: "0.0.0.0/0" }],
+      },
+      {
+        IpProtocol: "tcp",
+        FromPort: 443,
+        ToPort: 443,
+        IpRanges: [{ CidrIp: "0.0.0.0/0" }],
+      },
+      {
+        IpProtocol: "tcp",
+        FromPort: 22,
+        ToPort: 22,
+        IpRanges: [{ CidrIp: "0.0.0.0/0" }],
+      },
+    ];
 
     const params: AuthorizeSecurityGroupIngressCommandInput = {
       GroupId: securityGroupId,
@@ -77,12 +108,12 @@ const authorizeIngressTraffic = async (
   }
 };
 
-export const createInstanceSG = async (region: string): Promise<string> => {
+export const createInstanceSG = async (instanceName: string, region: string): Promise<string> => {
   const client = new EC2Client({ region: region });
 
   try {
     const vpcId = await getVpcId(client);
-    const securityGroupId = await initializeInstanceSG(vpcId, client);
+    const securityGroupId = await initializeInstanceSG(vpcId, client, instanceName);
     await authorizeIngressTraffic(securityGroupId, client);
     return securityGroupId;
   } catch (err) {
