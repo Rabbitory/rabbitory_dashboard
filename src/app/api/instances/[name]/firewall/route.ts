@@ -30,8 +30,10 @@ export async function GET( _request: Request, { params }: { params: Promise<{ na
 }
 
 
-// export async function POST(req: Request, { params }: { params: { name: string } }) {
-//   const { name } = params;
+// export async function POST(req: Request, { params }: { params: Promise<{ name: string }> }) {
+//   const { name } = await params;
+
+//   // add back in hidden ports: 80, 22, 15672 (don't allow user to toggle off through ui)
 
 // }
 
