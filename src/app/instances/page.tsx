@@ -9,6 +9,7 @@ import Dropdown from "../components/Dropdown";
 interface Instance {
   name: string;
   id: string;
+  state: string
 }
 
 export default function Home() {
@@ -44,7 +45,7 @@ export default function Home() {
           {instances.map((instance) => (
             <li key={instance.name} className="flex justify-between items-center p-4 border rounded-lg shadow-sm bg-white hover:bg-gray-50">
               <Link href={`/instances/${instance.name}`} className="text-xl text-blue-600 hover:underline">
-                {instance.name} | {instance.id}
+                {instance.name} | {instance.id} | {instance.state}
               </Link>
               <Dropdown
                 label="edit"

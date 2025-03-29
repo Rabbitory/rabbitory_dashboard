@@ -41,6 +41,7 @@ export const GET = async () => {
     return {
       name: instance.Tags.find((tag) => tag.Key === "Name")?.Value || "",
       id: instance.InstanceId,
+      state: instance.State?.Name,
     };
   });
 
