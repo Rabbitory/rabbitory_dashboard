@@ -31,7 +31,6 @@ export default function DeletePage({ params }: DeletePageParams) {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInputText(value);
-    console.log(inputText);
   }
 
   const handleDelete = async (e: FormEvent<HTMLFormElement>) => {
