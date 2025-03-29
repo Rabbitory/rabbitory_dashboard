@@ -52,8 +52,8 @@ export default function DeletePage({ params }: DeletePageParams) {
       }>
         <label htmlFor='instance' > Type the instance name: </label>
         <input type="text" name="instance" onChange={(e) => handleChange(e)} />
-        <button type="submit" disabled={!validInput}> Delete </button>
-        <button type="button" onClick={() => router.push(`/instances/${name}`)}>
+        <button name="delete" aria-label="delete" type="submit" disabled={!validInput}> Delete </button>
+        <button name="cancel" type="button" onClick={() => router.push(`/instances/${name}`)}>
           Cancel
         </button>
       </form >

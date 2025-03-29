@@ -23,4 +23,3 @@ it('displays correct headings', async () => {
   })
 })
 
-it('')
