@@ -2,50 +2,61 @@ import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
 import { NextResponse } from "next/server";
 import { pollRabbitMQServerStatus } from "@/utils/RabbitMQ/serverStatus";
 import createInstance from "@/utils/AWS/EC2/createBrokerInstance";
-const ec2Client = new EC2Client({ region: process.env.REGION });
+import { getEC2Regions } from "@/utils/AWS/EC2/getEC2Regions";
+
 
 export const GET = async () => {
-  const params = {
-    Filters: [
-      {
-        Name: "tag:Publisher",
-        Values: ["Rabbitory"],
-      },
-      {
-        Name: "instance-state-name",
-        Values: ["pending", "running", "stopping", "stopped", "shutting-down"],
-      },
-    ],
-  };
+  const regions = await getEC2Regions();
+  if (!regions) {
+    return new NextResponse("Failed to fetch regions", { status: 500 });
+  }
 
-  const command = new DescribeInstancesCommand(params);
-  const response = await ec2Client.send(command);
+  const allInstances = [];
 
-  if (!response.Reservations) {
+  for (const region of regions) {
+    const ec2Client = new EC2Client({ region });
+
+    const params = {
+      Filters: [
+        {
+          Name: "tag:Publisher",
+          Values: ["Rabbitory"],
+        },
+        {
+          Name: "instance-state-name",
+          Values: ["pending", "running", "stopping", "stopped", "shutting-down"],
+        },
+      ],
+    };
+
+    try {
+      const command = new DescribeInstancesCommand(params);
+      const response = await ec2Client.send(command);
+
+      if (response.Reservations) {
+        const instances = response.Reservations.flatMap(
+          (reservation) => reservation.Instances,
+        );
+
+        const formattedInstances = instances.map((instance) => (instance && {
+          name: instance.Tags?.find((tag) => tag.Key === "Name")?.Value || "",
+          id: instance.InstanceId,
+          state: instance.State?.Name,
+          region: region, // Include region information
+        }));
+
+        allInstances.push(...formattedInstances);
+      }
+    } catch (error) {
+      console.error(`Error fetching instances from region ${region}:`, error);
+    }
+  }
+
+  if (allInstances.length === 0) {
     return new NextResponse("No instances found", { status: 404 });
   }
 
-  const instances = response.Reservations.flatMap(
-    (reservation) => reservation.Instances,
-  );
-
-  const formattedInstances = instances.map((instance) => {
-    if (!instance || !instance.Tags) {
-      console.error("Instance or tags not found");
-      return NextResponse.json(
-        { message: "Instance or tags not found" },
-        { status: 404 },
-      );
-    }
-
-    return {
-      name: instance.Tags.find((tag) => tag.Key === "Name")?.Value || "",
-      id: instance.InstanceId,
-      state: instance.State?.Name,
-    };
-  });
-
-  return NextResponse.json(formattedInstances);
+  return NextResponse.json(allInstances);
 };
 
 export const POST = async (request: Request) => {
